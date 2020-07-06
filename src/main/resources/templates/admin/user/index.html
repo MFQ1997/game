@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>后台用户管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">登录名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="loginname" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="telphone" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">角色</label>
+                    <div class="layui-input-block">
+                        <select name="role">
+                            <option th:each="r:${roles}" th:value="${r.id}" th:text="${r.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-admin" data-type="batchdel">删除</button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="add">添加</button>
+            </div>
+            <script type="text/html" id="xuhao">
+                {{d.LAY_TABLE_INDEX+1}}
+            </script>
+            <table id="LAY-user-manage" lay-filter="LAY-user-manage"></table>
+
+            <script type="text/html" id="statusTpl">
+                <!--// 这里的 d 和上面的是一样的，表示当前行数据-->
+                <input type="checkbox" name="status" id="status" switch_role_id="{{d.id}}" lay-filter="status" lay-skin="switch" lay-text="启用|禁用" {{ d.status =="1"?"checked":"" }}>
+            </script>
+
+            <script type="text/html" id="table-user-tool">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>授权</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'mgameAdminManage', 'table'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+
+        //监听搜索
+        form.on('submit(LAY-user-back-search)', function(data){
+            var field = data.field;
+
+            //执行重载
+            table.reload('LAY-user-manage', {
+                where: field
+            });
+        });
+
+        //事件
+        var active = {
+            batchdel: function(){
+                var checkStatus = table.checkStatus('LAY-user-manage')
+                    ,checkData = checkStatus.data; //得到选中的数据
+
+                if(checkData.length === 0){
+                    return layer.msg('请选择数据');
+                }
+
+                layer.prompt({
+                    formType: 1
+                    ,title: '敏感操作，请验证口令'
+                }, function(value, index){
+                    layer.close(index);
+
+                    /*获取id数组*/
+                    var idList = new Array();
+                    for(var i=0;i<checkStatus.data.length;i++){
+                        idList.push(checkStatus.data[i].id);
+                    }
+                    layer.confirm('确定批量删除:'+idList+" 吗？", function(index) {
+                        /*parent.layer.msg('删除中...', {icon: 16,shade: 0.3,time:5000});*/
+                        //执行 Ajax 后重载
+                        $.ajax({
+                            url:"/api/article/batchdel",
+                            /*async: false,*/
+                            type: 'POST',
+                            contentType: "application/json",
+                            data: JSON.stringify(idList),
+                            dataType: 'json',
+                            success: function(data){
+                                if(data.code ==0){
+                                    layer.msg(data.msg,{offset: '15px',icon:1,time: 3000},function () {
+                                        layer.close(index); //关闭弹层
+                                        table.reload('LAY-article-list');
+                                    })
+                                }else {
+                                    layer.msg(data.msg,{icon:0,time:3000});
+                                    window.history.go(-1);
+                                }
+                            }
+                        });
+                        return false;
+                        table.reload('LAY-article-list');
+                        layer.msg('已删除');
+                    });
+                });
+            }
+            ,add: function(){
+                layer.open({
+                    anim: 1,
+                    type: 2
+                    ,title: '添加后台用户'
+                    ,content: '/user/add'
+                    ,area: ['400px', '500px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submitID = 'LAY-user-back-submit'
+                            ,submit = layero.find('iframe').contents().find('#'+ submitID)
+                            ,roles = layero.find('iframe').contents();
+                        //监听提交
+                        iframeWindow.layui.form.on('submit('+ submitID +')', function(data){
+                            var roleList = [];
+                            roles.find('input:checkbox[name="roleList"]:checked').each(function (i) {
+                                roleList.push($(this).val());
+                            });
+
+                            console.log("arr_box的复选框信息是"+roleList);
+
+                            data.field.roleList = roleList;
+                            if(data.field.status == "on") {
+                                data.field.status = "1";
+                            } else {
+                                data.field.status = "0";
+                            }
+                            var field = data.field; //获取提交的字段
+
+                            var admin = JSON.stringify(field);
+                            console.log(admin);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                url:"/api/user",
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:admin,
+                                success: function(data){
+                                    if(data.code ==0){
+                                        layer.msg(data.msg,{offset: '15px',icon:1,time: 1000},function () {
+                                            layer.close(index); //关闭弹层
+                                            table.reload('LAY-user-manage')
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+
+                        submit.trigger('click');
+                    }
+                });
+            }
+        }
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        /*修改状态*/
+        form.on('switch(status)', function (obj) {
+            var checked = obj.elem.checked;
+            var status = 0;
+            console.log(checked); //开关是否开启，true或者false
+            if (checked) {
+                status = 1;
+            }
+            //获取所需属性值
+            var id = obj.elem.attributes['switch_role_id'].nodeValue;
+            $.ajax({
+                url: '/api/user/' + id + '/' + status,
+                type: 'put',
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, { icon: 1, time: 1000}, function () {
+                            table.reload('LAY-user-manage');
+                        })
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

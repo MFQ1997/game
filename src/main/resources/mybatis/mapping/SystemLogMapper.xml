@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.SystemLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.SystemLog">
+        <id column="id" property="id" />
+        <result column="user_name" property="userName" />
+        <result column="operation" property="operation" />
+        <result column="method" property="method" />
+        <result column="ip" property="ip" />
+        <result property="params" column="params"></result>
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <!--插入日志-->
+   <!-- <insert id="save" parameterType="mai.game.entity.po.SystemLog">
+        insert into manage.t_system_log(username,operation,method,params,ip,create_time) values(#{userName},#{operation},#{method},#{params},#{ip},#{createTime})
+    </insert>-->
+
+    <select id="findAllLog" resultMap="BaseResultMap">
+        select * from t_system_log
+    </select>
+
+    <!--查询用户访问论坛模块的记录-->
+    <select id="getUserForumHostoryByEmail" resultType="Integer" parameterType="string">
+        select params from t_system_log where
+        method="mai.game.controller.home.BbsController.one" and
+        user_name=#{email} order BY create_time desc
+    </select>
+
+</mapper>

@@ -1,0 +1,2 @@
+[WARN ] 2020-03-20 11:18:15.506 [main] c.b.m.core.toolkit.TableInfoHelper - Warn: Could not find @TableId in Class: mai.game.entity.po.RolePermission.
+[WARN ] 2020-03-20 11:18:32.287 [main] o.t.templatemode.TemplateMode - [THYMELEAF][main] Template Mode 'LEGACYHTML5' is deprecated. Using Template Mode 'HTML' instead.

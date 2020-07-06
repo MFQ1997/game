@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>网站管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{../layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{../style/admin.css}" />
+
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">网站设置</div>
+                <div class="layui-card-body" pad15>
+<form id="form">
+                    <div class="layui-form" wid100 lay-filter="">
+
+                        <div class="layui-form-item" th:each="key:${systems}">
+                            <span style="color: red;font-weight: bold" th:text="${key.key}"></span>
+
+                            <div th:each="v:${key.value}" th:switch ="${v.type}">
+
+                                        <div th:case="text" >
+                                            <label class="layui-form-label" th:text="${v.remark}"></label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" th:name="${v.key}" th:value="${v.value}" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div th:case="email">
+                                            <label class="layui-form-label" th:text="${v.remark}"></label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" th:name="${v.key}" th:value="${v.value}" lay-verify="email" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div th:case="password">
+                                            <label class="layui-form-label" th:text="${v.remark}"></label>
+                                            <div class="layui-input-inline">
+                                                <input type="password" th:name="${v.key}" th:value="${v.value}" lay-verify="pass" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div th:case="url">
+                                            <label class="layui-form-label" th:text="${v.remark}"></label>
+                                            <div class="layui-input-inline">
+                                                <input type="tel"  th:name="${v.key}" th:value="${v.value}" lay-verify="url" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div th:case="number">
+                                            <label class="layui-form-label" th:text="${v.remark}">多规则验证</label>
+                                            <div class="layui-input-inline">
+                                                <input type="text" th:name="${v.key}" th:value="${v.value}" lay-verify="required|number" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div th:case="radio">
+                                            <label class="layui-form-label">单选框</label>
+                                            <div class="layui-input-block">
+                                                <input type="radio" name="sex" value="男" title="男" checked="">
+                                                <input type="radio" name="sex" value="女" title="女">
+                                                <input type="radio" name="sex" value="禁" title="禁用" disabled="">
+                                            </div>
+                                        </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="set_website" id="set_website">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+</form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{../layui/layui.js}"></script>
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'set','form', 'layer'],function () {
+        var form = layui.form;
+        var $ = layui.$;
+        var layer = layui.layer;
+        form.on('submit(set_website)', function(data){
+
+            console.log("提交的配置信息是："+JSON.stringify($("#form").serializeArray()));
+            $.ajax({
+                url: '/api/config/edit',
+                dataType: 'json',
+                type: 'post',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify($("#form").serializeArray()),
+                success: function(res){
+                    layer.alert('提交成功！');
+                }
+            });
+            return false;
+        });
+    });
+    
+
+</script>
+
+</body>
+</html>

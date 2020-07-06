@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>申请版主</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+<div class="layui-container">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            请认真填写你的申请理由哦！！！
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-form layui-form-pane">
+                <input type="hidden" name="userId" th:value="${user.id}">
+                <input type="hidden" name="forumId" th:value="${forum.id}">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请板块</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="forum" th:value="${forum.name}" required  autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请人</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="user" th:value="${user.userName}" required  autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+                <!--在session中获取到用户的id-->
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">申请理由</label>
+                    <div class="layui-input-block">
+                        <textarea name="reason" placeholder="请填写申请理由" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-filter="mgame-apply-submit" id="mgame-apply-submit" lay-submit>提交申请</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['util','layedit','form'], function(){
+        var $ = layui.$;
+        var form = layui.form;
+        var util = layui.util;
+        var layedit = layui.layedit;
+
+        var index = layedit.build('mgame_apply'); //建立编辑器
+
+        util.fixbar({});//建立工具
+
+        //监听提交
+        form.on('submit(mgame-apply-submit)', function(data){
+
+            var forumId = data.field.forumId;
+            var userId = data.field.userId;
+            var reason = data.field.reason;
+                //执行 Ajax 后重载
+                $.ajax({
+                    url:"/api/user/apply",
+                    method: 'post',
+                    data:{
+                        "forumId":forumId,
+                        "userId":userId,
+                        "reason":reason
+                    },
+                    success: function(data){
+                        console.log("状态码是"+data.code);
+                        if(data.code ==0){
+                            layui.data("mGame", {
+                                key: "token",
+                                value: data.data
+                            });
+                            console.log("获取的token值是"+data.data);
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                self.location = document.referrer;
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000},function () {
+                                refresh();
+                            });
+                        }
+                    }
+                });
+                return false;
+        });
+    });
+</script>
+</body>
+</html>

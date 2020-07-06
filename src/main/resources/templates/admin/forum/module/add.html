@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-card" style="padding-top: 15px">
+        <form class="layui-form layui-form-pane" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">板块名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" required  lay-verify="required" placeholder="请输入板块名字" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">板块图标</label>
+                    <div class="layui-input-inline">
+                        <input type="hidden" id="img" name="photo" lay-verify="required" >
+                        <button style="float: left;" type="button" class="layui-btn" id="imgUpload">上传图片</button>
+                    </div>
+                    <span id="showImg"></span>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" id="status" name="status" lay-skin="switch" lay-text="启用|禁用">
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">板块简介</label>
+                <div class="layui-input-block">
+                    <textarea name="remark" placeholder="请输入版主简介" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block layui-hide">
+                    <button class="layui-btn" lay-submit lay-filter="LAY-module-front-submit" id="LAY-module-front-submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    /*使用模块加载的方式 加载文件*/
+    layui.config({
+        base: '../../layui/'
+    }).extend({
+        treeSelect: "treeSelect"
+    }).use(['layer', 'treeSelect','form','upload'], function () {
+        var $ = layui.jquery;
+        var upload = layui.upload;
+        var form = layui.form;
+
+        //执行实例
+        upload.render({
+            elem: '#imgUpload'
+            ,url: "/api/module/thumb"
+            ,accept: 'images'
+            ,method: 'post'
+            ,acceptMime: 'image/*'
+            ,done: function(res){
+                document.getElementById("img").value=res.data;
+                document.getElementById("showImg").innerText = res.data;
+                layer.msg("上传成功",{icon: 1,time: 2000});
+            }
+        });
+
+        form.on('switch(status)', function(data){
+            $("input[name='status']").val(this.checked ?1:0);
+        });
+    });
+</script>
+
+</body>
+</html>

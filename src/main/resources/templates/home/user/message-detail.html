@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>消息详情</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span th:text="${message.userName}"></span>
+            <span th:if="${message.action} == 'COMMENT'">:评论了你的：</span>
+            <span th:if="${message.action} == 'REPLY'">:回复了你的</span>
+            <span th:text="${message.topicTitle}"></span>
+        </div>
+        <div class="layui-card-body" style="background: #f4f4f4">
+            <p th:utext="${message.content}"></p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+</body>
+</html>

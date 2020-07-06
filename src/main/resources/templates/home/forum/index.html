@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+
+    <style>
+        .layui-card-header {
+            position: relative;
+            height: 42px;
+            line-height: 42px;
+            padding: 0 15px;
+            border-bottom: 1px solid #f6f6f6;
+            color: #333;
+            border-radius: 2px 2px 0 0;
+            font-size: 16px;
+            background: #f2f2f2;
+
+
+
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<!--<div th:include="/home/pub/column :: column" ></div>-->
+<div th:include="/home/forum/header :: header" ></div>
+
+<div class="layui-container">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span class="layui-breadcrumb">
+                <a><cite>当前位置：</cite></a>
+                <a href="/">首页</a>
+                <a><cite>论坛</cite></a>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space20">
+        <div class="layui-col-md9 layui-col-sm-9 layui-col-xs-12">
+            <!--轮播图-->
+            <div class="layui-row">
+                    <div class="layui-carousel" id="test1">
+                        <div carousel-item>
+                            <div th:each="slide:${slide}">
+                                <div><img th:src="${slide.url}" width="100%" height="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="layui-row" shiro:user="">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            常逛板块
+                        </div>
+                        <div class="layui-card-body">
+                            <div class="layui-row layui-col-space20">
+                                <!--layui-hide-xs-->
+                                <div class="layui-col-md2 layui-col-sm2 layui-col-xs3 " th:each="uh:${userHistory}">
+                                    <div class="cmdlist-container">
+                                        <a href="javascript:;"><img th:src="${uh.photo}"></a>
+                                        <a href="javascript:;">
+                                            <div class="cmdlist-text">
+                                                <i class="info" th:text="${uh.name}"></i>
+                                                <div class="mes">
+                                                    <div class="layui-row">
+                                                        <a target="_blank" th:href="@{'/bbs/one/'+${uh.id}}" class="layui-btn hrefin layui-btn-fluid">进入</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="layui-row">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            新出板块
+                        </div>
+                        <div class="layui-card-body">
+                            <div class="layui-row layui-col-space20">
+                                <div class="layui-col-md2 layui-col-sm2 layui-col-xs3 layui-hide-xs" th:each="six:${sixForum}">
+                                    <div class="cmdlist-container">
+                                        <a href="javascript:;"><img th:src="${six.photo}"></a>
+                                        <a href="javascript:;">
+                                            <div class="cmdlist-text">
+                                                <i class="info" th:text="${six.name}"></i>
+                                                <div class="mes">
+                                                    <div class="layui-row">
+                                                        <a target="_blank" th:href="@{'/bbs/one/'+${six.id}}" class="layui-btn hrefin layui-btn-fluid">进入</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="layui-col-md2 layui-col-sm2 layui-col-xs3 layui-hide-md layui-hide-lg " th:each="eight:${eightForum}">
+                                    <div class="cmdlist-container">
+                                        <a href="javascript:;"><img th:src="${eight.photo}"></a>
+                                        <a href="javascript:;">
+                                            <div class="cmdlist-text">
+                                                <i class="info" th:text="${eight.name}"></i>
+                                                <div class="mes">
+                                                    <i class="layui-icon layui-icon-group" style="font-size: 12px;font-weight: bold">79</i>
+                                                    <i class="layui-icon layui-icon-reply-fill flow" style="font-size: 12px;font-weight: bold">79</i>
+                                                    <!--<a href="/bbs/one" class="flow hrefin">进入</a>-->
+                                                    <div class="layui-row">
+                                                        <a target="_blank" th:href="@{'/bbs/one/'+${eight.id}}" class="layui-btn hrefin layui-btn-fluid">进入</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="layui-row">
+                    <div class="layui-card">
+                        <div class="layui-card-header">
+                            热门板块
+                        </div>
+                        <div class="layui-card-body">
+                            <div class="layui-row layui-col-space20">
+                                <div class="layui-col-md2 layui-col-sm2 layui-col-xs3 " th:each="hmr:${hotModuleRanking}">
+                                    <div class="cmdlist-container">
+                                        <a href="javascript:;"><img th:src="${hmr.photo}"></a>
+                                        <a href="javascript:;">
+                                            <div class="cmdlist-text">
+                                                <i class="info" th:text="${hmr.name}"></i>
+                                                <div class="mes">
+                                                    <div class="layui-row">
+                                                        <a target="_blank" th:href="@{'/bbs/one/'+${hmr.id}}" class="layui-btn hrefin layui-btn-fluid">进入</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class="layui-row">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        友情链接
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="fly-panel fly-link">
+                            <dl class="fly-panel-main">
+                                <dd th:each="url:${url}">
+                                    <a th:href="${url.url}" th:text="${url.name}" target="_blank"></a>
+                                <dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm-3 layui-col-xs-12">
+
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h3><i class="layui-icon layui-icon-notice"></i>热门帖子</h3>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space10">
+                        <ul class="mgame-mini-ul">
+                            <li th:each="hot:${hotTopicRanking}">
+                                <a th:href="@{'/bbs/one/topic/'+${hot.id}}" th:text="${hot.title}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h3><i class="layui-icon layui-icon-notice"></i>论坛公告</h3>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space10">
+                        <span th:text="${#dates.format(announcement.createTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    </div>
+                    <div class="layui-row layui-col-space10">
+                        <p th:utext="${announcement.content}"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--尾部-->
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+
+<script>
+    layui.use('carousel', function(){
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#test1'
+            ,width: '100%' //设置容器宽度
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+    });
+</script>
+
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index','util'], function(){
+        var $ = layui.$
+            ,admin = layui.admin
+            ,element = layui.element;
+        var util = layui.util;
+
+        element.render('nav', 'component-nav');
+        element.render('nav', 'component-nav-active');
+
+        element.on('nav(component-nav-active)', function(elem){
+            layer.msg(elem.text());
+        });
+
+        util.fixbar({});
+    });
+</script>
+</body>
+</html>

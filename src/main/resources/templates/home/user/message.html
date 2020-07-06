@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+>
+<head>
+    <meta charset="UTF-8">
+    <title><shiro:principal/>-消息中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+    <style>
+        .layui-nav{
+            background: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+
+<div class="layui-container fly-marginTop fly-user-main">
+    <th:block th:insert="/home/common/side :: user"></th:block>
+
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon">&#xe602;</i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon">&#xe602;</i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user" id="LAY_msg" style="margin-top: 15px;">
+            <button class="layui-btn" onclick="markAllRead()">一键已读</button>
+            <button class="layui-btn layui-btn-danger" onclick="deleteAll()">删除全部消息</button>
+            <div  id="LAY_minemsg" style="margin-top: 10px;">
+                <div class="fly-none" th:if="${messageSize} eq 0">您暂时没有最新消息</div>
+                <div class="fly-none" th:if="${messageSize} neq 0">消息数是：<span th:text="${messageSize}"></span></spa></div>
+                <ul class="mine-msg" >
+                    <li th:each="m:${message}">
+                        <blockquote style="background: #F4F4F4">
+                            <span class="layui-badge layui-bg-green" th:if="${m.readStatus} eq 1">已读</span>
+                            <span  class="layui-badge layui-bg-red" th:if="${m.readStatus} eq 0">未读</span>
+                            <cite>通知：</cite>
+                            <a>
+                                <cite>
+                                    <span th:text="${m.userName}"></span>
+                                    <span th:if="${m.action} == 'COMMENT'">评论了你的：</span>
+                                    <span th:if="${m.action} == 'REPLY'">回复了你的</span>
+                                    <span th:text="${m.topicTitle}"></span>
+                                </cite>
+                            </a>
+
+                        </blockquote>
+                        <p><span></span>
+                            <a th:onclick="view([[${m.id}]]);" class="layui-btn layui-btn-small">查看</a>
+                            <a th:onclick="deleteMessage([[${m.id}]]);" class="layui-btn layui-btn-small layui-btn-danger">删除</a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div style="text-align: center">
+
+        </div>
+    </div>
+
+
+
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script>
+    function markAllRead() {
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            var $ = layui.$;
+            $.ajax({
+                url: "/api/notification/markAllRead",
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {icon: 1, time: 1000}, function () {
+                            window.location.reload();
+                        })
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+            return false;
+        });
+    }
+    function view(id) {
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            var $ = layui.$;
+            layer.open({
+                anim: 1,
+                type: 2
+                , title: '添加'
+                , content: '/my/user/message/detail/' + id
+                , area: ['50%', '50%']
+                , btn: ['确定', '取消']
+                , yes: function (index, layero) {
+                    $.ajax({
+                        url: "/api/notification/markOneRead/" + id,
+                        type: "GET",
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (data.code == 0) {
+                                layer.msg(data.msg, {icon: 1, time: 1000}, function () {
+                                    window.location.reload();
+                                })
+                            } else {
+                                layer.msg(data.msg, {icon: 0, time: 1000});
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+    };
+    function deleteMessage(id){
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            var $ = layui.$;
+            $.ajax({
+                url: "/api/notification/deleteOne/" + id,
+                type: "delete",
+                dataType: "json",
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {icon: 1, time: 1000}, function () {
+                            window.location.reload();
+                        })
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+            return false;
+        });
+    }
+    function deleteAll(id){
+        layui.use('layer', function() {
+            var layer = layui.layer;
+            var $ = layui.$;
+            $.ajax({
+                url: "/api/notification/deleteAll",
+                type: "delete",
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {icon: 1, time: 1000}, function () {
+                            window.location.reload();
+                        })
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+            return false;
+        });
+    }
+</script>
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','util','flow','layer'], function(){
+        var $ = layui.jquery;
+        var element = layui.element;
+        var util = layui.util;
+        var layer = layui.layer;
+        //固定块
+        util.fixbar({});
+
+        $('#view').on('click', function(){
+            var id = $(this).attr('message-id');
+            layer.open({
+                anim: 1,
+                type: 2
+                ,title: '添加'
+                ,content: '/my/user/message/detail/'+id
+                ,area: ['50%', '50%']
+                ,btn: ['确定', '取消']
+                ,yes: function(index, layero){
+                    $.ajax({
+                        url:"/api/notification/markOneRead/"+id,
+                        type:"GET",
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function(data){
+                            if(data.code ==0){
+                                layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                    layer.close(index); //关闭弹层
+                                    window.location.reload();
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

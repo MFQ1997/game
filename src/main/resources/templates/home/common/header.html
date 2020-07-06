@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<body th:fragment="header">
+    <div class="fly-header layui-bg-black" >
+        <div class="layui-container">
+            <a class="fly-logo layui-hide-xs" href="/"><img src="/img/sys/logo.png" alt="mGame" style="height: 40px"></a>
+            <!--导航针对移动端优化-->
+            <a class="fly-logo layui-hide-lg layui-hide-md" href="/forum" ><img src="/img/sys/logo.png" alt="mGame" style="height: 40px"></a>
+
+            <!--移动端显示-->
+            <ul class="layui-nav layui-hide-lg layui-hide-md" style="margin-left: 60px">
+                <li class="layui-nav-item">
+                    <a href="/">首页</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a></a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/bbs/">论坛</a></dd>
+                        <dd><a href="/bbs/forum/grade">评分</a></dd>
+                    </dl>
+                </li>
+            </ul>
+
+            <!--网页端显示-->
+            <ul class="layui-nav fly-nav layui-hide-xs">
+                <li class="layui-nav-item">
+                    <a href="/">首页</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="/bbs/">论坛</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="/bbs/forum/grade">评分</a>
+                </li>
+            </ul>
+
+            <ul class="layui-nav fly-nav-user">
+                <li class="layui-nav-item" shiro:user="">
+                    <a href="javascript:;">个人中心:<shiro:principal/><span th:text="${session.user.id}"></span></a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/my/home">我的主页</a></dd>
+                        <dd><a href="/my/user/message">我的消息</a></dd>
+                        <dd><a href="/my/user/p/myPosts">帖子管理</a></dd>
+                        <dd><a href="/my/user/set/info">基本设置</a></dd>
+                        <dd><a href="/logout">退出登录</a></dd>
+                    </dl>
+                </li>
+
+                <li class="layui-nav-item" shiro:guest="">
+                    <a href="/my/login/">登入</a>
+                </li>
+                <li class="layui-nav-item" shiro:guest="">
+                    <a href="/my/register">注册</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>

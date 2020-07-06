@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>公告管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-announcement" data-type="add">添加</button>
+            </div>
+
+            <table id="LAY-announce-list" lay-filter="LAY-announce-list"></table>
+            <script type="text/html" id="xuhao">
+                {{d.LAY_TABLE_INDEX+1}}
+            </script>
+            <script type="text/html" id="statusTpl">
+                <!--// 这里的 d 和上面的是一样的，表示当前行数据-->
+                <input type="checkbox" name="status" id="status" switch_announce_id="{{d.id}}" lay-filter="status" lay-skin="switch" lay-text="启用|禁用" {{ d.status =="1"?"checked":"" }}>
+            </script>
+            <script type="text/html" id="table-announce-right-tools">
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form','mgameAdmin', 'table'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+
+        //事件
+        var active = {
+            add: function(){
+                layer.open({
+                    anim: 1,
+                    type: 2
+                    ,title: '添加'
+                    ,content: '/announcement/add'
+                    ,area: ['600px', '300px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submit = layero.find('iframe').contents().find("#LAY-announce-front-submit");
+
+                        /*layer.alert("hello");*/
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(LAY-announce-front-submit)', function(data){
+                            if(data.field.status == "on") {
+                                data.field.status = "1";
+                            } else {
+                                data.field.status = "0";
+                            }
+
+                            var field = data.field; //获取提交的字段
+                            var module = JSON.stringify(field);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                url:"/api/announcement",
+                                /*async: false,*/
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:module,
+                                success: function(data){
+                                    if(data.code ==0){
+                                        console.log(data.msg);
+                                        layer.msg(data.msg,{offset: '15px',icon:1,time: 1000},function () {
+                                            layer.close(index); //关闭弹层
+                                            table.reload('LAY-announce-list');
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                        window.history.go(-1);
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+                        submit.trigger('click');
+                    }
+                });
+            }
+        }
+        $('.layui-btn.layuiadmin-btn-announcement').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        form.on('switch(status)', function (obj) {
+            var checked = obj.elem.checked;
+            var status = 0;
+            console.log(checked); //开关是否开启，true或者false
+            if (checked) {
+                status = 1;
+            }
+            //获取所需属性值
+            var id = obj.elem.attributes['switch_announce_id'].nodeValue;
+            console.log(id);
+            layer.confirm('确定修改?', {
+                btn: ['确定', '取消'],
+                yes: function (index) {
+                    //ajax请求
+                    $.ajax({
+                        url: '/api/announcement/' + id + '/' + status,
+                        type: 'put',
+                        success: function (data) {
+                            if (data.code == 0) {
+                                layer.msg(data.msg, {offset: '15px', icon: 1, time: 1000}, function () {
+                                    layer.close(index); //关闭弹层
+                                    // form.render();
+                                    table.reload('LAY-announce-list');
+                                })
+                            } else {
+                                layer.msg(data.msg, {icon: 0, time: 1000});
+                            }
+                        }
+                    });
+                }
+                , btn2: function (index) {
+                    //按钮【按钮二】的回调
+                    obj.elem.checked = !checked;
+                    form.render();
+                    layer.close(index);
+                    //return false; //开启该代码可禁止点击该按钮关闭
+                }
+
+            });
+        });
+    });
+</script>
+</body>
+</html>

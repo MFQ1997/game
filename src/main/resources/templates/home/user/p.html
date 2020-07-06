@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>帖子管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+    <style>
+        .layui-nav{
+            background: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+
+<div class="layui-container fly-marginTop fly-user-main">
+    <th:block th:insert="~{home/common/side :: user}"></th:block>
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon">&#xe602;</i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+    <div class="site-tree-mobile layui-hide">
+        <i class="layui-icon">&#xe602;</i>
+    </div>
+    <div class="site-mobile-shade"></div>
+
+
+    <div class="fly-panel fly-panel-user" pad20>
+        <!--
+        <div class="fly-msg" style="margin-top: 15px;">
+          您的邮箱尚未验证，这比较影响您的帐号安全，<a href="activate.html">立即去激活？</a>
+        </div>
+        -->
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title" id="LAY_mine">
+                <li  th:class="${section=='myPosts'}?'layui-this':''" ><a href="myPosts">我发的帖<span th:if="${section == 'myPosts'}"></span></a></li>
+                <li  th:class="${section=='likes'}?'layui-this':''"><a href="likes">收藏的帖<span th:if="${section == 'likes'}"></span></a></li>
+            </ul>
+            <div class="layui-tab-content" style="padding: 20px 0;">
+                <div th:class="${section=='myPosts'}?'layui-tab-item layui-show':'layui-tab-item'" >
+                    <div class="row">
+                        <ul class="mgame-topic-list" id="user-topic-list"></ul>
+                        <div style="text-align: center" id="userTopicPage"></div>
+                    </div>
+                </div>
+                <div id="mine-view" th:class="${section=='likes'}?'layui-tab-item layui-show ':'layui-tab-item'">
+                    <div class="row">
+                        <ul class="mgame-topic-list" id="user-collect-topic-list"></ul>
+                    </div>
+                    <div class="row">
+                        <div style="text-align: center" id="userCollectedTopicPage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="/home/common/footer :: footer" ></div>
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','util'], function(){
+        var $ = layui.jquery;
+        var element = layui.element;
+        var util = layui.util;
+
+        window.onload= function () {
+            loadTopicData();getTopicPage();
+            loadCollectedTopicData();getCollectedTopicPage();
+        }
+        var page=1; //设置首页页码
+        var limit=10;  //设置一页显示的条数
+        var total;    //总条数
+        function loadTopicData(){
+            $.ajax({
+                type:"post",
+                url:"/api/topic/user/"+[[${session.user.id}]],//对应controller的URL
+                async:false,
+                dataType: 'json',
+                data:{
+                    "page":page,
+                    "limit":limit,
+                },
+                success:function(ret){
+                    total=ret.data.total;  //设置总条数
+                    var data1=ret.data.list;
+                    var html='';
+                    for(var i=0;i<data1.length;i++){
+                        html+=' <li>';
+                        html+='<h2><a target="_blank" href='+'\"/bbs/one/topic/'+data1[i].id+'\"+' +'title="">'+data1[i].title+'</a></h2>';
+                        html+= '<div class="mgame-topic-list-info"> ';
+                        html+='<span><i class="layui-icon layui-icon-date" title="阅读"></i>'+data1[i].view+'</span>';
+                        html+='<span><i class="layui-icon layui-icon-date" title="回答"></i>'+data1[i].collect+'</span>';
+                        html+='</div>';
+                        html+='<span class="mgame-topic-list-nums"<i class="layui-icon layui-icon-date" ></i>'+data1[i].createTime +'</span>';
+                        html+=' <div class="mgame-topic-list-badge">';
+                        html+='</div>';
+                        html+='</li>';
+                    }
+                    $("#user-topic-list").empty().append(html);
+                }
+            });
+        }
+        function getTopicPage(){
+            layui.use('laypage', function(){
+                var laypage = layui.laypage;
+                var $  = layui.$;
+                //执行一个laypage实例
+                laypage.render({
+                    elem: 'userTopicPage' //注意，这里的 test1 是 ID，不用加 # 号
+                    ,count: total, //数据总数，从服务端得到
+                    limit:limit,   //每页条数设置
+                    jump: function(obj, first){
+                        //obj包含了当前分页的所有参数，比如：
+                        console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                        console.log(obj.limit); //得到每页显示的条数
+                        page=obj.curr;  //改变当前页码
+                        limit=obj.limit;
+                        //首次不执行
+                        if(!first){
+                            loadTopicData()  //加载数据
+                        }
+                    }
+                });
+            });
+        }
+        function loadCollectedTopicData(){
+            $.ajax({
+                type:"get",
+                url:"/api/topic/user/collect",//对应controller的URL
+                async:false,
+                data:{
+                    "page":page,
+                    "limit":limit,
+                },
+                success:function(ret){
+                    total=ret.data.total;  //设置总条数
+                    var data1=ret.data.list;
+                    var html='';
+                    for(var i=0;i<data1.length;i++){
+                        html+=' <li>';
+                        html+='<h2><a target="_blank" href='+'\"/bbs/one/topic/'+data1[i].id+'\"+' +'title="">'+data1[i].title+'</a></h2>';
+                        html+= '<div class="mgame-topic-list-info"> ';
+                        html+='<span><i class="layui-icon layui-icon-date" title="阅读"></i>'+data1[i].view+'</span>';
+                        html+='<span><i class="layui-icon layui-icon-date" title="回答"></i>'+data1[i].collect+'</span>';
+                        html+='</div>';
+                        html+='<span class="mgame-topic-list-nums"<i class="layui-icon layui-icon-date" ></i>'+data1[i].createTime +'</span>';
+                        html+=' <div class="mgame-topic-list-badge">';
+                        html+='</div>';
+                        html+='</li>';
+                    }
+                    $("#user-collect-topic-list").empty().append(html);
+                }
+            });
+        }
+        function getCollectedTopicPage(){
+            layui.use('laypage', function(){
+                var laypage = layui.laypage;
+                var $  = layui.$;
+                //执行一个laypage实例
+                laypage.render({
+                    elem: 'userCollectedTopicPage' //注意，这里的 test1 是 ID，不用加 # 号
+                    ,count: total, //数据总数，从服务端得到
+                    limit:limit,   //每页条数设置
+                    jump: function(obj, first){
+                        page=obj.curr;  //改变当前页码
+                        limit=obj.limit;
+                        //首次不执行
+                        if(!first){
+                            loadCollectedTopicData()  //加载数据
+                        }
+                    }
+                });
+            });
+        }
+
+
+
+
+
+
+        //固定块
+        util.fixbar({});
+    });
+</script>
+
+
+</body>
+</html>

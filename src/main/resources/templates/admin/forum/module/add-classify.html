@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>添加板块的分类</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+
+</head>
+<body>
+<div th:include="/home/common/header :: header" ></div>
+<!--<div th:include="/home/pub/column :: column" ></div>-->
+<div th:include="/home/forum/header :: header" ></div>
+
+<div class="layui-container">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span class="layui-breadcrumb">
+                <a><cite>当前位置：</cite></a>
+                <a href="/">社区</a>
+                <a href="/bbs">论坛</a>
+                <a><cite><span th:text="${forumModule.name}"></span></cite></a>
+                <a><cite>添加帖子分类</cite></a>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="layui-container">
+    <div class="layui-card" style="padding-top: 15px">
+        <div class="layui-card-header">
+            <h2>为板块《<span th:text="${forumModule.name}"></span>》添加帖子分类</h2>
+        </div>
+        <div class="layui-card-body">
+            <form class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所在板块</label>
+                    <div class="layui-input-block">
+                        <input type="hidden" name="moduleId" th:value="${forumModule.id}">
+                        <input type="text" th:value="${forumModule.name}" disabled class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">分类名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="name" required  lay-verify="required" placeholder="请输入板块名字" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="sort" required  lay-verify="required|number" placeholder="请输入排序数字" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">板块简介</label>
+                    <div class="layui-input-block">
+                        <textarea name="remark" placeholder="请输入该分类简介" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="mgame-module-classify-front-submit">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    /*使用模块加载的方式 加载文件*/
+    layui.config({
+        base: '../../layui/'
+    }).use(['layer','form'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var element = layui.element;
+
+        form.on('submit(mgame-module-classify-front-submit)', function(data){
+            $.ajax({
+                url:"/api/module/classify",
+                type:"POST",
+                dataType: "json",
+                contentType: "application/json",
+                data:JSON.stringify(data.field),
+                success: function(data){
+                    if(data.code ==0){
+                        layer.msg(data.msg,{icon:1,time: 1000},function () {
+                            self.location = document.referrer;
+                        })
+                    }else {
+                        layer.msg(data.msg,{icon:0,time:1000},function () {
+                            window.history.go(-1);
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<dl class="fly-panel fly-list-one">
+
+    <dt class="fly-panel-title">本周热议</dt>
+<!--    {{# d.hotda.forEach(function(item){ }}-->
+    <dd>
+        <a href="/jie/{{item.id}}/"></a>
+        <span><i class="iconfont icon-pinglun1"></i> </span>
+    </dd>
+    <!--{{# }); }}-->
+
+   <!-- {{# if(d.hotda.length === 0){ }}-->
+    <div class="fly-none">没有相关数据</div>
+    <!--{{# } }}-->
+</dl>
+</body>
+</html>

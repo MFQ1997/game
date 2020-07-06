@@ -1,0 +1,22 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<ul th:fragment="user" class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
+    <li class="layui-nav-item">
+        <a href="/my/home" target="_blank"><i class="layui-icon">&#xe609;</i>我的主页</a>
+    </li>
+    <li th:class="${section=='message'}?'layui-nav-item layui-this':'layui-nav-item'" >
+        <a href="/my/user/message"><i class="layui-icon">&#xe611;</i>我的消息</a>
+    </li>
+    <li th:class="${section=='myPosts'||section=='likes'}?'layui-nav-item layui-this':'layui-nav-item'">
+        <a href="/my/user/p/myPosts"><i class="layui-icon">&#xe62a;</i>帖子管理</a>
+    </li>
+    <li th:class="${section=='info'||section=='avatar'}?'layui-nav-item layui-this':'layui-nav-item'">
+        <a href="/my/user/set/info"><i class="layui-icon">&#xe620;</i>基本设置</a>
+    </li>
+    <li class="layui-nav-item">
+        <a href="/logout"><i class="layui-icon">&#xe620;</i>退出登录</a>
+    </li>
+</ul>
+
+
+</html>

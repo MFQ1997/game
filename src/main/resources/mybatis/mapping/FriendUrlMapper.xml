@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.FriendUrlMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.FriendUrl">
+        <id column="id" property="id" />
+        <result column="url" property="url" />
+        <result column="name" property="name" />
+        <result column="remark" property="remark" />
+        <result column="status" property="status" />
+        <result column="classify" property="classify" />
+    </resultMap>
+
+    <select id="findAllFriendUrl" resultMap="BaseResultMap">
+        select * from t_friend_url
+    </select>
+
+</mapper>

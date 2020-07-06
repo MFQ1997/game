@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.NotificationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Notification">
+        <id column="id" property="id" />
+        <result column="topic_id" property="topicId" />
+        <result column="user_id" property="userId" />
+        <result column="target_user" property="targetUser" />
+        <result column="action" property="action" />
+        <result column="in_time" property="inTime" />
+        <result column="read_status" property="readStatus" />
+        <result column="content" property="content" />
+    </resultMap>
+
+    <resultMap id="NotificationDTOMap" type="mai.game.dto.NotificationDTO">
+        <id column="id" property="id" />
+        <result column="topic_id" property="topicId" />
+        <result column="topic_title" property="topicTitle" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="target_user" property="targetUser" />
+        <result column="action" property="action" />
+        <result column="in_time" property="inTime" />
+        <result column="read_status" property="readStatus" />
+        <result column="content" property="content" />
+    </resultMap>
+
+    <resultMap id="ApplyResultMap" type="mai.game.dto.Apply">
+        <result property="id" column="id"></result>
+        <result property="userId" column="user_id"></result>
+        <result property="userName" column="user_name"></result>
+        <result property="forumId" column="forum_module_id"></result>
+        <result property="forumName" column="forum_module_name"></result>
+        <result property="reason" column="reason"></result>
+        <result property="time" column="time"></result>
+    </resultMap>
+
+    <select id="selectByUserId" resultType="map">
+        select n.*, uu.user_name, uu.img, t.title
+        from t_notification n
+        left join t_user u on u.id = n.target_user
+        left join t_user uu on uu.id = n.user_id
+        left join t_topic t on t.id = n.topic_id
+        where n.target_user = #{userId}
+       <!-- <if test="limit &gt; 0">
+            limit #{limit}
+        </if>-->
+    </select>
+
+    <update id="updateAllNotificationStatus">
+        update t_notification set read_status =1
+    </update>
+
+    <update id="updateOneNotificationStatus">
+        update t_notification set read_status=1 where id =#{notificationId}
+    </update>
+    <update id="updateOneNotificationStatusById">
+        update t_notification set read_status=1 where id =#{id}
+    </update>
+
+    <select id="countNotRead" resultType="Integer">
+        select COUNT(*) from t_notification where read_status=0 and user_id=#{userId}
+    </select>
+    <delete id="deleteAllByUserId" parameterType="Integer">
+        delete from t_notification where target_user=#{id}
+    </delete>
+
+    <delete id="deleteByUserIdAndId" parameterType="Integer">
+        delete from t_notification where target_user=#{id} and id=#{id1}
+    </delete>
+
+    <select id="selectWithOtherListByUserId" resultMap="NotificationDTOMap">
+    select n.*, uu.user_name user_name, t.title topic_title
+        from t_notification n
+        left join t_user uu on uu.id = n.user_id
+        left join t_topic t on t.id = n.topic_id
+        where n.target_user = #{id}
+    </select>
+
+    <select id="getNotifaicationWithOtherById" resultMap="NotificationDTOMap">
+        select n.*, uu.user_name user_name, t.title topic_title
+        from t_notification n
+        left join t_user uu on uu.id = n.user_id
+        left join t_topic t on t.id = n.topic_id
+        where n.id = #{id}
+    </select>
+
+    <select id="getApplyNotificationList" resultMap="ApplyResultMap">
+       select t_user.id user_id,t_user.user_name,
+        t_forum_module.id forum_module_id,t_forum_module.name forum_module_name,
+        t_notification.content reason,t_notification.id id,t_notification.in_time time
+        from t_notification,t_user,t_forum_module
+        where t_user.id=t_notification.user_id and t_forum_module.id=t_notification.target_user
+        AND t_notification.action ="APPLY" and t_notification.read_status=0
+    </select>
+
+    <select id="getApplyNotificationById" resultMap="ApplyResultMap">
+       select t_user.id user_id,t_user.user_name,
+        t_forum_module.id forum_module_id,t_forum_module.name forum_module_name,
+        t_notification.content reason,t_notification.id id,t_notification.in_time time
+        from t_notification,t_user,t_forum_module
+        where t_user.id=t_notification.user_id and t_forum_module.id=t_notification.target_user
+        AND t_notification.action ="APPLY" and t_notification.read_status=0 and t_notification.id =#{notificationId}
+    </select>
+
+
+
+
+</mapper>

@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>申请版主信息处理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-form layui-form-pane">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <input type="hidden" id="userId" name="userId" th:value="${apply.userId}">
+                <input type="hidden" id="forumId" name="forumId" th:value="${apply.forumId}">
+                <input type="hidden" id="id" name="id" th:value="${apply.id}">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请板块</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="forum" th:disabled="不可编辑" th:value="${apply.forumName}" required  autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请人</label>
+                    <div class="layui-input-inline">
+                        <input type="text" th:disabled="不可编辑" name="user" th:value="${apply.userName}" required  autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">申请理由</label>
+                    <div class="layui-input-block">
+                        <textarea name="reason" th:utext="${apply.reason}" disabled  class="layui-textarea"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="color: red;font-weight: bold">审核结果</label>
+                <div class="layui-input-block">
+                    <input type="radio"  lay-filter="status" name="status" checked="checked" value="0">暂不处理
+                    <input type="radio"  lay-filter="status" name="status" value="1">同意
+                    <input type="radio"  lay-filter="status" name="status" value="2">不同意
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    layui.use(['form'], function(){
+        var $ = layui.$;
+        layui.form.on("radio(status)", function (data) {
+            var status = data.value;
+            var userId = $('#userId').val();
+            var forumId = $('#forumId').val();
+            var id = $('#id').val();
+            console.log(status);
+            console.log(userId);
+            console.log(forumId);
+            console.log(id);
+            $.ajax({
+                url: '/api/user/apply/check',
+                async: false,
+                method: 'post',
+                data:{
+                    "forumId":forumId,
+                    "userId":userId,
+                    "id":id,
+                    "status":status
+                },
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {icon: 1, time: 1000})
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+        });
+    });
+
+</script>
+</body>
+</html>

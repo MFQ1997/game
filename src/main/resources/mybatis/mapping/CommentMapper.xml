@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Comment">
+        <id column="id" property="id" />
+        <result column="topic_id" property="topicId" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="time" property="time" />
+    </resultMap>
+
+    <resultMap id="commentResultWithUserName" type="mai.game.entity.vo.CommentVO">
+        <id column="id" property="id" />
+        <result column="topic_id" property="topicId" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName"/>
+        <result column="photo" property="photo" />
+        <result column="time" property="time" />
+    </resultMap>
+    <resultMap id="ResultMapWithAllMes" type="mai.game.dto.CommentDTO">
+        <id column="id" property="id" />
+        <result column="topic_id" property="topicId" />
+        <result column="topic_name" property="topicName" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="time" property="time" />
+    </resultMap>
+    
+    <select id="findAllComment" resultMap="BaseResultMap">
+        select * from t_comment order by time desc
+    </select>
+    <select id="findAllCommentDto" resultMap="ResultMapWithAllMes">
+        select c.*,u.user_name user_name,t.title topic_name
+        from t_comment c
+        left JOIN t_user u on u.id=c.user_id
+        left JOIN t_topic t on t.id =c.topic_id
+    </select>
+
+    <select id="getCommentByTopicId" resultMap="commentResultWithUserName">
+        select t_comment.*,t_user.user_name user_name,t_user.img photo
+        from t_user, t_comment
+        where t_user.id = t_comment.user_id
+        and topic_id=#{id}
+        order by time desc
+    </select>
+
+</mapper>

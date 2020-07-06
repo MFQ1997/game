@@ -1,0 +1,241 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <meta charset="utf-8">
+    <title>敏感词</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">敏感词</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="word" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-word-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-forum_module" data-type="add">添加</button>
+
+                <button type="button" class="layui-btn" id="test-upload-type1"><i class="layui-icon"></i>上传导入模板</button>
+                <button class="layui-btn layui-btn-normal"><a th:href="${path}">下载导入模板</a></button>
+                <button class="layui-btn layuiadmin-btn-forum_module" id="import">导入词汇</button>
+                <button class="layui-btn layuiadmin-btn-forum_module layui-btn-danger" data-type="batchdel">批量删除</button>
+            </div>
+
+            <table id="LAY-word-list" lay-filter="LAY-word-list"></table>
+            <script type="text/html" id="xuhao">
+                {{d.LAY_TABLE_INDEX+1}}
+            </script>
+
+            <script type="text/html" id="table-word-right-tools">
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form','mgameAdmin', 'table','upload'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+            var upload = layui.upload;
+
+
+        table.on('edit(LAY-word-list)', function(obj){
+            $.ajax({
+                url:"/api/word/",
+                type: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(obj.data),
+                dataType: 'json',
+                success: function(data){
+                    if(data.code ==0){
+                        layer.msg(data.msg,{icon:1,time: 1000},function () {
+                            table.reload('classify');
+                        })
+                    }else {
+                        layer.msg(data.msg,{icon:0,time:1000});
+                    }
+                }
+            });
+            return false;
+            //console.log(obj.value); //得到修改后的值
+            //console.log(obj.field); //当前编辑的字段名
+            //console.log(obj.data); //所在行的所有相关数据
+        });
+
+        //指定允许上传的文件类型
+        upload.render({
+            elem: '#test-upload-type1'
+            ,url: '/api/word/templet/'
+            ,method: 'post'
+            ,accept: 'file' //普通文件
+            ,done: function(res){
+                if (res.code == 0){
+                    layer.msg(res.msg,{icon: 1,time: 2000});
+                }else {
+                    layer.alert(res.msg,{icon: 0});
+                }
+
+            }
+        });
+        //指定允许上传的文件类型
+        upload.render({
+            elem: '#import'
+            ,url: '/api/word/importdata/'
+            ,method: 'post'
+            ,accept: 'file' //普通文件
+            ,done: function(res){
+                if (res.code == 0){
+                    layer.msg(res.msg,{icon: 1,time: 2000},function () {
+                        table.reload('LAY-word-list');
+                    });
+                }else {
+                    layer.alert(res.msg,{icon: 0});
+                }
+
+            }
+        });
+
+
+        //监听搜索
+        form.on('submit(LAY-word-search)', function(data){
+            var field = data.field;
+            var module = JSON.stringify(field);
+
+            //执行重载
+            table.reload('LAY-word-list', {
+                method:'post',
+                url: '/api/word/find',
+                dataType: "json",
+                contentType: "application/json",
+                data:module,
+                where:
+                field,timestamp: (new Date()).valueOf()
+                , page: {
+                    curr: 1 //从当前页码开始
+                }
+            },data);
+
+            return false;
+        });
+
+        //事件
+        var active = {
+            batchdel: function(){
+                var checkStatus = table.checkStatus('LAY-word-list')
+                    ,checkData = checkStatus.data; //得到选中的数据
+                if(checkData.length === 0){
+                    return layer.msg('请选择数据',{icon:2,time:3000});
+                }
+                var idList = new Array();
+                for(var i=0;i<checkStatus.data.length;i++){
+                    idList.push(checkStatus.data[i].id);
+                }
+                layer.confirm('确定批量删除:'+idList+" 吗？", function(index) {
+                    /*parent.layer.msg('删除中...', {icon: 16,shade: 0.3,time:5000});*/
+                    //执行 Ajax 后重载
+                    $.ajax({
+                        url:"/api/word/batchdel",
+                        /*async: false,*/
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: JSON.stringify(idList),
+                        dataType: 'json',
+                        success: function(data){
+                            if(data.code ==0){
+                                layer.msg(data.msg,{offset: '15px',icon:1,time: 1000},function () {
+                                    layer.close(index); //关闭弹层
+                                    table.reload('LAY-word-list');
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                                window.history.go(-1);
+                            }
+                        }
+                    });
+                    return false;
+                    table.reload('LAY-word-list');
+                    layer.msg('已删除');
+                });
+            },
+            add: function(){
+                layer.open({
+                    anim: 1,
+                    type: 2
+                    ,title: '添加敏感词'
+                    ,content: '/word/add'
+                    ,area: ['300px', '400px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submit = layero.find('iframe').contents().find("#LAY-word-front-submit");
+
+                        /*layer.alert("hello");*/
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(LAY-word-front-submit)', function(data){
+                            var wordList = $(layero).find("iframe")[0].contentWindow.getTagList();
+                            var nameList = new Array();
+                            nameList = wordList;
+
+                            $.ajax({
+                                url:"/api/word",
+                                /*async: false,*/
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:JSON.stringify(nameList),
+                                success: function(data){
+                                    if(data.code ==0){
+                                        console.log(data.msg);
+                                        layer.msg(data.msg,{offset: '15px',icon:1,time: 1000},function () {
+                                            layer.close(index); //关闭弹层
+                                            table.reload('LAY-word-list');
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                        window.history.go(-1);
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+                        submit.trigger('click');
+                    }
+                });
+            },
+        }
+
+        $('.layui-btn.layuiadmin-btn-forum_module').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>
+</body>
+</html>
+

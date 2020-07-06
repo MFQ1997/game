@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.UserMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.User">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="true_name" property="trueName" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="password" property="password" />
+        <result column="salt" property="salt" />
+        <result column="email" property="email" />
+        <result column="status" property="status" />
+        <result column="sex" property="sex" />
+        <result column="score" property="score" />
+        <result column="login_time" property="loginTime" />
+        <result column="login_ip" property="loginIp" />
+        <collection property="roleList" ofType="mai.game.entity.po.Role">
+            <result property="id" column="r_id" />
+            <result property="roleName" column="r_name" />
+            <result property="status" column="r_status" />
+            <result property="remark" column="r_remark" />
+        </collection>
+    </resultMap>
+
+    <!--将实体类的属性和数据库中的字段进行绑定，用于查询到权限级别。-->
+    <resultMap id="findUserWithPermission" type="mai.game.entity.po.User">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="true_name" property="trueName" />
+        <result column="img" property="img" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="pass" property="pass" />
+        <result column="password" property="password" />
+        <result column="salt" property="salt" />
+        <result column="email" property="email" />
+        <result column="status" property="status" />
+        <result column="sex" property="sex" />
+        <result column="score" property="score" />
+        <result column="login_time" property="loginTime" />
+        <result column="login_ip" property="loginIp" />
+        <result column="intro" property="intro" />
+        <collection property="roleList" ofType="mai.game.entity.po.RoleWithPermission">
+            <result property="id" column="r_id" />
+            <result property="roleName" column="r_name" />
+            <result property="status" column="r_status" />
+            <result property="remark" column="r_remark" />
+            <collection property="permissions" ofType="mai.game.entity.po.Permission">
+                <result property="id" column="permission_id"/>
+                <result property="pid" column="pid" />
+                <result property="permissionName" column="p_name"/>
+                <result property="url" column="url"/>
+                <result property="icon" column="icon"/>
+                <result property="status" column="p_status"/>
+                <result property="sort" column="sort"/>
+                <result property="type" column="type"/>
+                <result property="perms" column="perms"/>
+                <result property="remark" column="p_remark"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <resultMap id="simpleUserResultMap" type="mai.game.entity.po.SimpleUser">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="img" property="img" />
+        <result column="user_name" property="userName" />
+        <result column="true_name" property="trueName" />
+        <result column="pass" property="pass"></result>
+        <result column="password" property="password"></result>
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="sex" property="sex" />
+        <result column="intro" property="intro" />
+    </resultMap>
+
+    <resultMap id="masterMessageResult" type="mai.game.dto.MasterDTO">
+        <result column="user_id" property="userId"></result>
+        <result column="user_name" property="userName"></result>
+        <result column="img" property="img"></result>
+        <result column="topic_count" property="topicCount"></result>
+        <result column="comment_count" property="commentCount"></result>
+        <result column="reply_count" property="replyCount"></result>
+        <result column="fan_count" property="fanCount"></result>
+        <result column="vote_count" property="voteCount"></result>
+    </resultMap>
+
+    <resultMap id="masterResult" type="HashMap">
+        <result column="user_name" property="userName"/>
+        <result column="speed" property="speed" />
+    </resultMap>
+
+    <sql id="all_column">
+        id,user_id,img,user_name,true_name,phone,pass,password,email,sex,score,login_time,login_ip
+    </sql>
+
+    <sql id="user_message_column">
+        id,user_id,user_name,true_name,img,phone,pass,password,email,score,sex,intro
+    </sql>
+
+    <!--
+    select t_user.*,
+        t_role.id r_id, t_role.role_name r_name,t_role.status r_status,t_role.remark r_remark
+        from t_user, t_role, t_user_role
+        where  t_user.id = t_user_role.user_id
+        and t_user_role.role_id = t_role.id
+    -->
+    <select id="findAllRole" resultMap="BaseResultMap">
+        select * from t_user
+    </select>
+
+    <select id="userCount" resultType="Integer">
+        select count(*) from t_user
+    </select>
+
+    <select id="findUserByLikeName" resultMap="BaseResultMap">
+        select <include refid="all_column"></include> from t_user WHERE user_name like concat('%',#{name},'%')
+    </select>
+
+   <!-- select t_user.*,
+    t_role.id r_id, t_role.role_name r_name,t_role.status r_status,t_role.remark r_remark,
+    t_permission.id permission_id,t_permission.status p_status,t_permission.permission_name p_name,pid,t_permission.url,t_permission.perms,t_permission.type,t_permission.icon,t_permission.sort,t_permission.remark p_remark
+    from t_user, t_role, t_user_role, t_permission, t_role_permission
+    where t_user.id = t_user_role.user_id
+    and t_user_role.role_id = t_role.id
+    and t_role.id = t_role_permission.role_id
+    and t_role_permission.permission_id = t_permission.id
+    and t_user.email = #{email}
+    order by t_permission.sort desc-->
+
+    <select id="findUserToLogin" resultMap="findUserWithPermission">
+        select t_user.*,
+            t_role.id r_id, t_role.role_name r_name,t_role.status r_status,t_role.remark r_remark,
+            t_permission.id permission_id,t_permission.status p_status,t_permission.permission_name p_name,pid,t_permission.url,t_permission.perms,t_permission.type,t_permission.icon,t_permission.sort,t_permission.remark p_remark
+            from t_user
+            left join t_user_role on t_user_role.user_id=t_user.id
+            left join t_role on t_user_role.role_id =t_role.id
+            left join t_role_permission on  t_role_permission.role_id =t_role.id
+            left join t_permission on t_role_permission.permission_id =t_permission.id
+            where t_user.email = #{email}
+            order by t_permission.sort desc
+    </select>
+
+    <select id="selectBySimpleUserId" resultMap="simpleUserResultMap">
+        select <include refid="user_message_column"></include> from t_user where id = #{id}
+    </select>
+    <select id="isNullByEmail" resultMap="simpleUserResultMap">
+        select id from t_user where email =#{email}
+    </select>
+
+    <select id="findSimpleUserByEmail" resultMap="simpleUserResultMap">
+        select <include refid="user_message_column"></include> from t_user where email = #{email}
+    </select>
+    <select id="selectSimpleUserByEmail" resultMap="simpleUserResultMap">
+        select <include refid="user_message_column"></include> from t_user where email = #{email}
+    </select>
+
+    <update id="updatePassword"  parameterType="mai.game.entity.po.SimpleUser">
+        update t_user
+        <set>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="salt != null">
+                salt = #{salt},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateSimpleById" parameterType="mai.game.entity.po.SimpleUser">
+        update t_user
+        <set>
+            <if test="userName != null">
+                user_name=#{userName},
+            </if>
+            <if test="trueName != null">
+                true_name=#{trueName},
+            </if>
+            <if test="phone != null">
+                phone=#{phone},
+            </if>
+            <if test="email !=null">
+                email=#{email},
+            </if>
+            <if test="status !=null">
+                status=#{status},
+            </if>
+            <if test="sex !=null">
+                sex=#{sex},
+            </if>
+            <if test="loginTime!=null">
+                login_time=#{loginTime},
+            </if>
+            <if test="score != null">
+                score=#{score},
+            </if>
+            <if test="loginIp !=null">
+                loginIp WHERE =#{loginIp},
+            </if>
+            <if test="intro !=null">
+                intro WHERE =#{intro},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--查询版主的发帖量、回复量-->
+    <select id="selectMasterByUserId" resultMap="masterMessageResult" parameterType="Integer">
+        select t_user.id user_id,t_user.img img,t_user.user_name,
+        (select count(t_topic.id) from t_topic where t_user.id=t_topic.user_id) topic_count,
+        (select count(t_comment.id) from t_comment where t_user.id=t_comment.user_id) comment_count,
+        (select count(t_reply.id) from t_reply where t_user.id=t_reply.to_user_id) reply_count,
+        (select count(*) from t_user_like LEFT JOIN t_topic on t_topic.id = t_user_like.liked_topic_id LEFT JOIN t_user on t_user.id = t_topic.user_id) vote_count
+        from t_user where id =#{userId}
+    </select>
+</mapper>

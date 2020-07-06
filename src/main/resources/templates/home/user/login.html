@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+
+<div class="layui-container fly-marginTop">
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title">
+                <li class="layui-this">登入</li>
+                <li><a href="/my/register/">注册</a></li>
+            </ul>
+            <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form-pane">
+                            <div class="layui-form-item">
+                                <label for="L_email" class="layui-form-label">邮箱</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="L_email" name="email" required lay-verify="required|email" value="1662851594@qq.com" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label for="L_pass" class="layui-form-label">密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" id="L_pass" name="password" required lay-verify="required" value="123" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label for="L_vercode" class="layui-form-label">验证码</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="L_vercode" name="vercode" required lay-verify="required" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
+                                </div>
+                                <img id="captcha_img" alt="点击更换" title="点击更换" onclick="this.src='/kaptcha?d='+new Date()*1" src="/kaptcha" />
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">滑动验证</label>
+                                <div class="layui-input-inline">
+                                    <div id="slider"></div>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <button class="layui-btn" lay-filter="mgame-user-login-submit" lay-submit>立即登录</button>
+                            </div>
+                    </div>
+                    <div class="layui-row">
+                        <span style="padding-left:20px;"><a href="/my/forget">忘记密码？</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index', //主入口模块
+        sliderVerify:'/modules/sliderVerify'
+    }).use(['util','form','sliderVerify'], function(){
+        var $ = layui.$;
+        var form = layui.form;
+        var util = layui.util;
+        var sliderVerify = layui.sliderVerify;
+
+        util.fixbar({});//建立工具
+
+        var slider = sliderVerify.render({
+            elem: '#slider',
+            isAutoVerify:false,//关闭自动验证
+            bg : 'layui-bg-red',//自定义背景样式名
+            text : '滑动验证',
+            onOk: function(){//当验证通过回调
+                layer.msg("滑块验证通过");
+            }
+        })
+
+        var phone = /^1\d{10}$/;
+        //自定义验证规则
+        form.verify({
+            /*phone: function(value){
+                if(/^1\d{10}$/.test(value)){
+                    return '请输入正确的电话号';
+                }
+            }*/
+        });
+
+        //监听提交
+        form.on('submit(mgame-user-login-submit)', function(data){
+            if(slider.isOk()){//用于表单验证是否已经滑动成功
+                var userLoginData = JSON.stringify(data.field);
+                console.log("打印的登录信息是："+userLoginData);
+                //执行 Ajax 后重载
+                $.ajax({
+                    url:"/api/login",
+                    method: 'post',
+                    contentType: "application/json",
+                    data: userLoginData,
+                    dataType: 'json',
+                    success: function(data){
+                        console.log("状态码是"+data.code);
+                        if(data.code ==0){
+                            layui.data("mGame", {
+                                key: "token",
+                                value: data.data
+                            });
+                            console.log("获取的token值是"+data.data);
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                self.location = document.referrer;
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000},function () {
+                                var img = document.getElementById("captcha_img");
+                                img.src = "/kaptcha?d=" + Math.random();
+                            });
+                        }
+                    }
+                });
+                return false;
+            }else{
+                layer.msg("请先通过滑块验证",{icon:0,time:1000});
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

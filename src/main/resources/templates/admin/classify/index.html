@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>分类</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    分类管理
+                </div>
+                <div class="layui-inline">
+                    <p class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-classify" data-type="add">添加</button>
+                       <!-- <button class="layui-btn layuiadmin-btn-classify" data-type="batchdel">批量删除</button>-->
+                        <button class="layui-btn layuiadmin-btn-classify" id="btn-expand">全部展开</button>
+                        <button class="layui-btn layuiadmin-btn-classify" id="btn-fold">全部折叠</button>
+                        <button class="layui-btn layuiadmin-btn-classify" id="btn-refresh">刷新表格</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <table id="classifyTable" lay-data="{id:'id'}"  class="layui-table" lay-filter="classifyTable"></table>
+            <script type="text/html" id="xuhao">
+                {{d.LAY_TABLE_INDEX+1}}
+            </script>
+
+            <script type="text/html" id="table-useradmin-classify">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+
+<script>
+    /*使用模块加载的方式 加载文件*/
+    layui.config({
+        base: '../../layui/'
+    }).extend({
+        treetable: 'treetable'
+    }).use(['layer', 'table', 'treetable','form'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var layer = layui.layer;
+        var treetable = layui.treetable;
+
+        // 渲染表格
+        var renderTable = function () {//树桩表格参考文档：https://gitee.com/whvse/treetable-lay
+            layer.load(2);
+
+            treetable.render({
+                treeColIndex: 1,                      //树形图标显示在第几列
+                treeSpid: 0,                          //最上级的父级id
+                id: 'id',
+                treeIdName: 'id',                     //id字段的名称
+                treePidName: 'pid',                   //pid字段的名称
+                treeDefaultClose: false,              //是否默认折叠
+                treeLinkage: true,                    //父级展开时是否自动展开所有子级
+                elem: '#classifyTable',
+                url: '/api/classify/',
+                page: false,
+                cols: [
+                    [
+                        {title: '序号',templet: '#xuhao',width:60},
+                        {field: "name",title: "分类名",width:180},
+                        {field: "pid", title: "父级",width:60},
+                        {field: "sort", title: "排序",width:60},
+                        {field: "intro", title: "简介"},
+                        {field: "remark",title: "备注"},
+                        {field: "createTime",title: "创建时间",width:150},
+                        {title: "操作", width: 150, align: "center", fixed: "right", toolbar: "#table-useradmin-classify"}
+                    ]
+                ],
+                done: function () {
+                    layer.closeAll('loading');
+                }
+            });
+        };
+
+        renderTable();
+
+        //触发三个button按钮
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#classifyTable');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#classifyTable');
+        });
+
+        $('#btn-refresh').click(function () {
+            renderTable();
+        });
+
+        //事件
+        var active = {
+            batchdel: function(){
+                var checkStatus = table.checkStatus('classifyTable')
+                    ,checkData = checkStatus.data; //得到选中的数据
+                if(checkData.length === 0){
+                    return layer.msg('请选择数据',{icon:2,time:1000});
+                }
+                var idList = new Array();
+                for(var i=0;i<checkStatus.data.length;i++){
+                    idList.push(checkStatus.data[i].id);
+                }
+                if(checkData.length === 0){
+                    return layer.msg('请选择数据');
+                }
+                layer.confirm('确定删除吗？', function(index) {
+                    //执行 Ajax 后重载
+                    $.ajax({
+                        url:"/api/classify/batchdel",
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: JSON.stringify(idList),
+                        dataType: 'json',
+                        success: function(data){
+                            if(data.code ==0){
+                                layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                    layer.close(index); //关闭弹层
+                                    table.reload('LAY-article-list');
+                                    window.location.reload();
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                                window.history.go(-1);
+                            }
+                        }
+                    });
+
+                    table.reload('classifyTable');
+                    layer.msg('已删除');
+                });
+            },
+            add: function(){
+                layer.open({
+                    type: 2
+                    ,title: '添加'
+                    ,content: '/classify/add'
+                    ,area: ['800px', '480px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submit = layero.find('iframe').contents().find("#mgame-classify-add-submit");
+
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(mgame-classify-add-submit)', function(data){
+                            var field = data.field; //获取提交的字段
+                            console.log("添加分类的时候的提交的数据是："+JSON.stringify(field));
+                            var classify = JSON.stringify(field);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                url:"/api/classify",
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:classify,
+                                success: function(data){
+                                    if(data.code ==0){
+                                        layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                            table.reload('classifyTable');
+                                            layer.close(index); //关闭弹层
+                                            window.location.reload();
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                    }
+                                }
+                            });
+
+                            return false;
+                        });
+
+                        submit.trigger('click');
+                    }
+                });
+            }
+        }
+        $('.layui-btn.layuiadmin-btn-classify').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+        //监听工具条
+        table.on('tool(classifyTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if(data.name!=null){
+                if (layEvent === 'del') {
+                    layer.confirm("确定删除id为"+data.id+" 的数据吗？",function () {
+                        $.ajax({
+                            url: "/api/classify/deleteone/"+data.id,
+                            type:"DELETE"
+                            ,success: function(data){
+                                if(data.code ==0){
+                                    layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                        layer.close(); //关闭弹层
+                                        renderTable();
+                                        window.location.reload();
+                                    })
+                                }else {
+                                    layer.msg(data.msg,{icon:0,time:1000});
+                                    window.history.go(-1);
+                                }
+                            }
+                        });
+                    })
+                } else if (layEvent === 'edit') {
+                    layer.open({
+                        anim: 1,
+                        type: 2,
+                        title: "编辑",
+                        content: "/classify/edit/"+data.id,
+                        data:[""],
+                        area: ["800px", "480px"],
+                        btn: ["确定", "取消"],
+                        yes: function (e, t) {
+                            var l = window["layui-layer-iframe" + e],
+                                r = t.find("iframe").contents().find("#mgame-classify-edit-submit");
+                            l.layui.form.on("submit(mgame-classify-edit-submit)", function (data) {
+                                if(data.field.status == "on") {
+                                    data.field.status = "1";
+                                } else {
+                                    data.field.status = "0";
+                                }
+                                var field = data.field; //获取提交的字段
+
+                                var url = JSON.stringify(field);
+                                console.log(url);
+
+                                $.ajax({
+                                    url:"/api/classify",
+                                    type:"PUT",
+                                    dataType: "json",
+                                    contentType: "application/json",
+                                    data:url
+                                    ,success: function(data){
+                                        if(data.code ==0){
+                                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                               /* table.reload('permissionTable');*/
+                                                window.location.reload();
+                                            })
+                                        }else {
+                                            layer.msg(data.msg,{icon:0,time:1000});
+                                            window.history.go(-1);
+                                        }
+                                    }
+                                });
+
+                            }), r.trigger("click")
+                        },success: function (e, t) {
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

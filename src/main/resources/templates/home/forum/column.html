@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="column">
+
+<div class="layui-card">
+    <div class="layui-card-header">
+        <div style="border-bottom: 1px solid #eeeeee">
+            <ul class="classify-list">
+                <li> <a th:href="@{'/forum/module/classify/add/'+${forum.id}}"+ class="layui-btn layui-btn-danger">添加分类</a></li>
+                <li> <a th:href="@{'/forum/module/classify/edit/'+${forum.id}}"+ class="layui-btn layui-btn-normal" target="_blank">编辑分类</a></li>
+                <li> <a th:href="@{'/topic/add/'+${forum.id}}"+ class="layui-btn">发表新帖</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-card-body">
+        <ul class="classify-list">
+            <li th:each="c:${classify}">
+                <a class="layui-btn layui-btn-gray" th:href="@{'/api/topic/classify/'+${c.id}}" th:text="${c.name}"></a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

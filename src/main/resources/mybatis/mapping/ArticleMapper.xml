@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.ArticleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Article">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="classify_id" property="classifyId" />
+        <result column="author" property="author" />
+        <result column="time" property="time" />
+        <result column="img" property="img" />
+        <result column="intro" property="intro" />
+        <result column="content" property="content" />
+        <result column="view" property="view" />
+        <result column="is_top" property="isTop" />
+    </resultMap>
+
+    <select id="findAllArticle" resultMap="BaseResultMap">
+        select * from t_article where status=2 order by time desc
+    </select>
+
+    <select id="findAllArticleLike" resultMap="BaseResultMap">
+
+    </select>
+    <select id="getArticleLimit" resultMap="BaseResultMap" parameterType="Integer">
+        select *
+        from t_article
+        where classify_id != 5
+        and status=2
+        order by time desc Limit #{limit}
+    </select>
+    <select id="getArticleVideoLimit" resultMap="BaseResultMap" parameterType="Integer">
+        select *
+        from t_article
+        where classify_id = 5
+        order by time desc Limit #{limit}
+    </select>
+
+
+</mapper>

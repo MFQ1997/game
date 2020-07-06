@@ -1,0 +1,701 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${topic.title}"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+
+    <style>
+        .layui-btn-light-blue {
+            border: 1px solid #f3f7fb;
+            background-color: #f3f7fb;
+            color: #555
+        }
+        .layui-btn-light-blue:hover {
+            border: 1px solid #f3f7fb;
+            background-color: #f3f7fb;
+            color: #555
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md9 content detail">
+            <div class="fly-panel detail-box">
+                <h1 th:text="${topic.title}"></h1>
+                <div class="fly-detail-info">
+                    <span>
+                        <a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i> 66</a>
+                        <i class="iconfont" title="阅读数">&#xe60b;</i><span th:text="${topic.view}"></span>
+                        <span>时间：<i th:text="${#dates.format(topic.modifyTime, 'yyyy-MM-dd HH:mm:ss')}"></i></span>
+                    </span>
+
+                    <div class="fly-list-nums">
+
+                        <span th:if="${topic.isTop} eq 1" class="layui-badge layui-bg-black">置顶</span>
+                        <span th:if="${topic.isGood} eq 1" class="layui-badge layui-bg-red">精帖</span>
+
+                        <div class="fly-admin-box">
+                            <shiro:hasPermission name="topic:delete">　
+                                  <span class="layui-btn layui-btn-xs jie-admin layui-bg-orange" type="del">删除</span>
+                            </shiro:hasPermission>
+                            <shiro:authenticated>
+                                <span th:if="${isAuthor} eq 1" class="layui-btn layui-btn-xs jie-admin layui-bg-orange" type="del">删除</span>
+                            </shiro:authenticated>
+
+
+                            <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="1">设置置顶</span>
+                            <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="stick" rank="0" style="background-color:#ccc;">取消置顶</span> -->
+                            <span class="layui-btn layui-btn-xs jie-admin layui-bg-blue" type="set" field="status" rank="1">设置加精</span>
+                            <!-- <span class="layui-btn layui-btn-xs jie-admin" type="set" field="status" rank="0" style="background-color:#ccc;">取消加精</span> -->
+                        </div>
+                    </div>
+                </div>
+
+                <!--内容主题-->
+                <div class="mgame-content-body">
+                    <div class="layui-row">
+                        <p th:utext="${topic.content}" style="padding-bottom: 15px"></p>
+                    </div>
+                    <div class="layui-row" style="border-top: 1px solid #000000;position: absolute;bottom: 5px;padding-top: 5px">
+                        <span th:if="${isZan} eq 0" id="dianZan" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="zan" th:data-id="${topic.id}"><i class="iconfont icon-zan">点赞</i><em id="voteCount" th:text="${topic.voteCount}"></em></span>
+                        <span th:if="${isZan} eq 1" id="cancelDianZan" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="unzan" th:data-id="${topic.id}" style="color: #ff9d00"><i class="iconfont icon-zan">取消点赞</i><em id="cancelVoteCount" th:text="${topic.voteCount}"></em></span>
+                        <span th:if="${isCollect} eq 0" id="collect" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="collect" th:data-id="${topic.id}"><i class="layui-icon layui-icon-rate-solid">收藏</i><em th:text="${topic.collect}"></em></span>
+                        <span th:if="${isCollect} eq 1" id="cancelCollect" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="uncollect" th:data-id="${topic.id}" style="color: #ff9d00"><i class="layui-icon layui-icon-rate-solid">取消收藏</i></span>
+                        <span class="layui-btn layui-btn-xs layui-btn-null mgame-topic"><a href="#comment"><i class="iconfont" title="回答">&#xe60c;</i><em th:value="${topic.commentCount}"></em></a></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fly-panel detail-box">
+                <div class="layui-row">
+                    <div class="layui-card">
+                        <div class="layui-card-body">
+                            <ul class="mgame-mini-article">
+                                <li>
+                                    <a  class="fly-avatar"><img th:src="${master.img}" alt="${master.userName}"></a>
+                                    <h2><a  th:text="${master.userName}"></a></h2>
+                                    <div class="fly-list-info">
+                                        <span class="mgame-article-mini-info">
+                                             <div class="layui-row">
+                            <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                                <div class="fly-home fly-panel">
+                                    <h4>帖子数</h4>
+                                    <h5 th:text="${master.topicCount}"></h5>
+                                </div>
+                            </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>评论</h4>
+                            <h5 th:text="${master.commentCount}"></h5>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>回复</h4>
+                            <h5 th:text="${master.replyCount}"></h5>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>获赞</h4>
+                            <h5 th:text="${master.voteCount}"></h5>
+                        </div>
+                    </div>
+                </div>
+                                        </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="fly-panel detail-box" id="flyReply">
+                <!--开始评论-->
+                <div class=" layui-form-pane">
+                    <form class="layui-form">
+                        <!--在session中获取到用户的id-->
+                        <input type="hidden" name="userId" th:value="${master.userId}">
+                        <input type="hidden" name="topicId" th:value="${topic.id}">
+                        <div class="layui-form-item layui-form-text">
+                            <a name="comment"></a>
+                            <div class="layui-input-block">
+                                <textarea id="mgame_comment" name="content" lay-verify="comment_content"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <button class="layui-btn" lay-filter="mgame-comment-submit" lay-submit>提交评论</button>
+                        </div>
+                    </form>
+                </div>
+                <!--以下是评论-->
+                <ul class="jieda" >
+                    <li data-id="111" th:each="comment:${commentList}">
+                        <div class="detail-about detail-about-reply">
+                            <a class="game-avatar" href=""><img th:src="${comment.photo}" th:alt="${comment.userName}"></a>
+                            <div class="detail-hits">
+                                <span th:text="${#dates.format(comment.time, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                                <div class="jieda-admin">
+                                    <span class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="zan"><i class="iconfont icon-zan"></i><em>0</em></span>
+                                    <span class="layui-btn layui-btn-xs layui-btn-null mgame-topic"><a href="javascript:;" style="text-decoration: none;" onclick="btnReplyClick(this)">回复</a></span>
+                                    <span shiro:user="" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="del" th:data-comment-id="${comment.id}" th:data-comment-content="${comment.content}" th:if="${userId} eq ${comment.userId}">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="detail-body jieda-body photos">
+                            <p style="margin-left: 30px" th:utext="${comment.content}"></p>
+                        </div>
+                        <div class="replycontainer layui-hide" style="margin-left: 61px;">
+                            <form action="/bbs/topic/reply" method="post" class="layui-form">
+                                <input name="topicId" th:value="${topic.id}" hidden="hidden"/>
+                                <input name="toUserId" th:value="${comment.userId}" hidden="hidden"/>
+                                <input name="commentId" th:value="${comment.id}" hidden="hidden"/>
+                                <input name="replyId" th:value="${comment.id}" hidden="hidden"/>
+                                <input name="replyType" value="0" hidden="hidden"  />
+                                <div class="layui-form-item">
+                                    <textarea name="content" id="content" lay-verify="replyContent" class="layui-textarea" style="min-height:80px;">@[[${comment.userName}]]:&nbsp;&nbsp;</textarea>
+                                </div>
+                                <div class="layui-form-item">
+                                    <button id="replyBtn" class="layui-btn layui-btn-mini" lay-submit="formReply" lay-filter="formReply">提交</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div style="margin-left: 30px;padding-left: 15px;border-left: 2px solid #f2f2f2;">
+                            <!--这里是评论的回复-->
+                            <ul class="jieda" >
+                                <li data-id="111" th:each="reply:${replyList}">
+                                    <div th:if="${reply.commentId } eq ${comment.id}">
+                                        <div class="detail-about detail-about-reply" >
+                                            <a class="game-avatar" href=""><img th:src="${reply.photo}" th:alt="${reply.userName}"></a>
+                                            <div class="detail-hits">
+                                                <span th:text="${#dates.format(reply.time, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                                                <div class="jieda-admin">
+                                                    <span class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="zan"><i class="iconfont icon-zan"></i><em>0</em></span>
+                                                    <span class="layui-btn layui-btn-xs layui-btn-null mgame-topic"><a href="javascript:;" style="text-decoration: none;" onclick="btnReplyClick(this)">回复</a></span>
+                                                    <span shiro:user="" class="layui-btn layui-btn-xs layui-btn-null mgame-topic" data-type="del" th:data-comment-id="${reply.id}" th:data-comment-content="${reply.content}" th:if="${userId} eq ${reply.userId}">删除</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="detail-body jieda-body photos">
+                                            <p style="margin-left: 30px" th:utext="${reply.content}"></p>
+                                        </div>
+                                        <div class="replycontainer layui-hide" style="margin-left: 61px;">
+                                            <form action="/bbs/topic/reply" method="post" class="layui-form">
+                                                <input name="topicId" th:value="${topic.id}" hidden="hidden"/>
+                                                <input name="toUserId" th:value="${reply.userId}" hidden="hidden"/>
+                                                <input name="commentId" th:value="${comment.id}" hidden="hidden"/>
+                                                <input name="replyId" th:value="${reply.id}" hidden="hidden"/>
+                                                <input name="replyType" value="1" hidden="hidden"  />
+                                                <div class="layui-form-item">
+                                                    <textarea name="content" id="content" lay-verify="replyContent" class="layui-textarea" style="min-height:80px;">@[[${comment.userName}]]:&nbsp;&nbsp;</textarea>
+                                                </div>
+                                                <div class="layui-form-item">
+                                                    <button id="replyBtn" class="layui-btn layui-btn-mini" lay-submit="formReply" lay-filter="formReply">提交</button>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <div style="margin-left: 30px;padding-left: 15px;border-left: 2px solid #f2f2f2;">
+                                            <!--这里是评论的回复-->
+                                        </div>
+                                    </div>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+
+
+
+            </div>
+        </div>
+
+
+        <!--楼主信息-->
+        <div class="layui-col-md3 layui-col-sm12 layui-col-xs12 white-back">
+            <div class="fly-home fly-panel">
+                <img th:src="${master.img}" alt="楼主">
+                <h1>
+                    <a th:href="@{'/bbs/home/'+${master.userId}}" th:text="${master.userName}"></a>
+                </h1>
+
+                <div class="layui-row">
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>帖子数</h4>
+                            <h5 th:text="${master.topicCount}"></h5>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>评论</h4>
+                            <h5 th:text="${master.commentCount}"></h5>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>回复</h4>
+                            <h5 th:text="${master.replyCount}"></h5>
+                        </div>
+                    </div>
+                    <div class="layui-col-md3 layui-col-sm-3 layui-col-xs3">
+                        <div class="fly-home fly-panel">
+                            <h4>获赞</h4>
+                            <h5 th:text="${master.voteCount}"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-row">
+                    <span th:if="${isFollow} eq 0" href="javascript:;"  data-type="follow" class="layui-btn fly-imActive"  th:data-master-id="${master.userId}">关注Ta</span>
+                    <span th:if="${isFollow} eq 1" href="javascript:;" data-type="unfollow" class="layui-btn fly-imActive"  style="background: #ff9d00" th:data-master-id="${master.userId}">取消关注Ta</span>
+                    <a th:href="@{'/bbs/home/'+${master.userId}}" class="layui-btn layui-btn-primary">Ta的主页</a>
+                </div>
+            </div>
+            <div class="fly-home fly-panel">
+                <h1>
+                    <span style="font-weight: bold">最新帖子</span>
+                </h1>
+
+                <div class="layui-row">
+                    <div class="layui-col-md12 layui-col-sm-12 layui-col-xs12">
+                        <ul class="mgame-mini-ul"></ul>
+                        <div style="text-align: center" id="userTopicPage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script>
+    //分页获取数据
+    window.onload= function () {
+        //toHideButton(); //隐藏按钮
+        loadTopicData();  //请求数据
+        getTopicPage()     //分页操作
+    }
+    
+    function toHideButton() {
+        layui.use('laypage', function() {
+            var laypage = layui.laypage;
+            var $ = layui.$;
+            $("#cancelDianZan").hide();
+            $("#cancelCollect").hide();
+        })
+    }
+    var page=1;var limit=10;var total;
+    function loadTopicData(){
+        var $  = layui.$;
+        $.ajax({
+            type:"post",
+            url:"/api/topic/user/"+[[${master.userId}]],//对应controller的URL
+            async:false,
+            dataType: 'json',
+            data:{"page":page, "limit":limit,},
+            success:function(ret){
+                total=ret.data.total;  //设置总条数
+                var data1=ret.data.list;
+                var html='';
+                for(var i=0;i<data1.length;i++){
+                    html+=' <li>';
+                    html+='<a href='+'\"/bbs/one/topic/'+data1[i].id+'\"+' +'title="">'+data1[i].title+'</a>';
+                    html+='</li>';
+                }
+                $(".mgame-mini-ul").empty().append(html);
+            }
+        });
+    }
+    function getTopicPage(){
+        layui.use('laypage', function(){
+            var laypage = layui.laypage;
+            var $  = layui.$;
+            //执行一个laypage实例
+            laypage.render({
+                elem: 'userTopicPage' //注意，这里的 test1 是 ID，不用加 # 号
+                ,count: total, //数据总数，从服务端得到
+                limit:limit,   //每页条数设置
+                jump: function(obj, first){
+                    //obj包含了当前分页的所有参数，比如：
+                    console.log("大年夜"+obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                    console.log(obj.limit); //得到每页显示的条数
+                    page=obj.curr;  //改变当前页码
+                    limit=obj.limit;
+                    //首次不执行
+                    if(!first){
+                        loadTopicData()  //加载数据
+                    }
+                }
+            });
+        });
+    }
+</script>
+
+<script>
+    function btnReplyClick(elem) {
+        var $ = layui.jquery;
+        if($(this)){
+        }else if(!$(this)){
+            $(elem).parent('span').parent('.jieda-admin').parent('.detail-hits').parent('.detail-about.detail-about-reply').siblings('.replycontainer').toggleClass('layui-show');
+        }
+        $(elem).parent('span').parent('.jieda-admin').parent('.detail-hits').parent('.detail-about.detail-about-reply').siblings('.replycontainer').toggleClass('layui-hide');
+        if ($(elem).text() == '回复') {
+            $(elem).text('收起')
+        } else {
+            $(elem).text('回复')
+        }
+    }
+</script>
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['util','layedit','form'], function(){
+        var $ = layui.$;
+        var form = layui.form;
+        var util = layui.util;
+        var layedit = layui.layedit;
+        var index = layedit.build('mgame_comment'); //建立编辑器
+
+        //自定义验证规则
+        form.verify({
+            comment_content: function(){
+                layedit.sync(index);
+            }
+        });
+
+        //监听提交
+        form.on('submit(mgame-comment-submit)', function(data){
+            var commment = JSON.stringify(data.field);
+            var topicTitle = [[${topic.title}]];
+            layer.confirm('确定评论帖子《'+topicTitle+'》吗?', function(index) {
+                $.ajax({
+                    url:"/api/comment",
+                    method: 'post',
+                    contentType: "application/json",
+                    data: commment,
+                    dataType: 'json',
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+            });
+            return false;
+        });
+
+        //事件
+        var active = {
+            edit: function(){
+                layer.open({
+                    type: 2
+                    ,title: '添加'
+                    ,content: '/article/add'
+                    ,area: ['800px', '450px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submit = layero.find('iframe').contents().find("#LAY-article-front-submit");
+
+                        /*layer.alert("hello");*/
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(LAY-article-front-submit)', function(data){
+                            console.log(data.field.status);
+                            if(data.field.status == "on") {
+                                data.field.status = "1";
+                            } else {
+                                data.field.status = "0";
+                            }
+                            if(data.field.isTop == "on") {
+                                data.field.isTop = "1";
+                            } else {
+                                data.field.isTop = "0";
+                            }
+                            var field = data.field; //获取提交的字段
+                            var article = JSON.stringify(field);
+                            console.log(article);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                url:"/api/article",
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:article,
+                                success: function(data){
+                                    if(data.code ==0){
+                                        layer.msg(data.msg,{offset: '15px',icon:1,time: 1000},function () {
+                                            layer.close(index); //关闭弹层
+                                            table.reload('LAY-article-list');
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                        window.history.go(-1);
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+
+                        submit.trigger('click');
+                    }
+                });
+            },
+            del: function(){
+                var commentId = $(this).attr('data-comment-id');
+                var commentContent = $(this).attr('data-comment-content');
+                layer.confirm('确定删除评论《'+commentContent+'》和该下所有的回复信息吗？', function(index) {
+                    console.log("待删除的评论id是："+commentId);
+                    $.ajax({
+                        url:"/api/comment/deleteone/"+id,
+                        /*async: false,*/
+                        type: 'delete',
+                        contentType: "application/json",
+                        dataType: 'json',
+                        success: function(data){
+                            if(data.code ==0){
+                                layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                   window.location.reload();
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                            }
+                        }
+                    });
+                    return false;
+                });
+            },
+            reply: function(){
+                var userId = $(this).attr('data-user-id');
+
+                //评论id
+                var commentId = $(this).attr('data-comment-id');
+
+                console.log("进行回复"+commentId);
+                layer.open({
+                    type: 2
+                    ,title: '回复'+userId
+                    ,content: '/reply/bbs/reply'
+                    ,area: ['600px', '400px']
+                    ,btn: ['回复', '取消']
+                    ,success: function (layero, index) {
+
+                    }
+                    ,yes: function(index, layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submit = layero.find('iframe').contents().find("#mgame-reply-submit");
+
+                        /*layer.alert("hello");*/
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(mgame-reply-submit)', function(data){
+                            console.log( data.field);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            $.ajax({
+                                /*url:"/api/article",*/
+                                type:"POST",
+                                dataType: "json",
+                                contentType: "application/json",
+                                data:JSON.stringify(data.field),
+                                success: function(data){
+                                    if(data.code ==0){
+                                        layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                            layer.close(index); //关闭弹层
+                                            window.location.reload();
+                                        })
+                                    }else {
+                                        layer.msg(data.msg,{icon:0,time:1000});
+                                    }
+                                }
+                            });
+                            return false;
+                        });
+                        submit.trigger('click');
+                    }
+                });
+            },
+            zan: function(){
+                var topicId = $(this).attr('data-id');
+                var topicTitle = $(this).attr('data-title');
+                var vote =  $("#voteCount").text();
+                $.ajax({
+                        url:"/api/user/like",
+                        async: false,
+                        type: 'POST',
+                        data:{
+                            "likedTopicId":topicId
+                        },
+                        success: function(data){
+                            if(data.code ==0){
+                                var result = parseInt(vote)+1;
+                                layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                    window.location.reload();
+                                    $("#cancelDianZan").show();
+                                    $("#cancelVoteCount").html(result);
+                                    $("#dianZan").hide();
+
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                            }
+                        }
+                    });
+                return false;
+            },
+            unzan: function(){
+                var topicId = $(this).attr('data-id');
+                var vote =  $("#voteCount").text();
+                $.ajax({
+                        url:"/api/user/unlike",
+                        async: false,
+                        type: 'POST',
+                        data:{
+                            "likedTopicId":topicId
+                        },
+                        success: function(data){
+                            if(data.code ==0){
+                                var result = parseInt(vote)-1;
+                                layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                    $("#cancelDianZan").show();
+                                    $("#cancelVoteCount").html(result);
+                                    $("#dianZan").hide();
+
+                                })
+                            }else {
+                                layer.msg(data.msg,{icon:0,time:1000});
+                            }
+                        }
+                    });
+                return false;
+            },
+            collect: function(){
+                var topicId = $(this).attr('data-id');
+                $.ajax({
+                    url:"/api/user/collect",
+                    async: false,
+                    type: 'post',
+                    data:{
+                        "likedTopicId":topicId
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            },
+            uncollect: function(){
+                var topicId = $(this).attr('data-id');
+                $.ajax({
+                    url:"/api/user/uncollect",
+                    async: false,
+                    type: 'post',
+                    data:{
+                        "likedTopicId":topicId
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            }
+        }
+
+
+        var followActive = {
+            follow:function () {
+                var masterId = $(this).attr('data-master-id');
+                $.ajax({
+                    url:"/api/user/follow",
+                    async: false,
+                    type: 'POST',
+                    data:{
+                        "followMasterId":masterId,
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            },
+            unfollow:function () {
+                var masterId = $(this).attr('data-master-id');
+                $.ajax({
+                    url:"/api/user/unfollow",
+                    async: false,
+                    type: 'POST',
+                    data:{
+                        "followMasterId":masterId,
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            }
+        }
+
+        $('.layui-btn.layui-btn-xs.layui-btn-null.mgame-topic').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        $('.layui-btn.fly-imActive').on('click', function(){
+            var type = $(this).data('type');
+            followActive[type] ? followActive[type].call(this) : '';
+        });
+
+
+
+
+        util.fixbar({});//建立工具
+
+
+    });
+</script>
+</body>
+</html>

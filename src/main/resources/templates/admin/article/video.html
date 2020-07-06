@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <!-- 百度编辑器配置文件 -->
+    <script type="text/javascript" th:src="@{/ueditor/ueditor.config.js}"></script>
+    <!-- 百度编辑器编辑器源码文件 -->
+    <script type="text/javascript" th:src="@{/ueditor/editor_api.js}"></script>
+
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-card" style="padding-top: 15px">
+            <form class="layui-form layui-form-pane">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">链接</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="content" required  lay-verify="required" placeholder="请输入视频链接" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">所在分类</label>
+                    <div class="layui-input-block">
+                        <select name="classifyId" lay-verify="">
+                            <option th:each="c:${classifies}" th:value="${c.id}" th:text="${c.name}" th:selected="${c.id eq 5}" disabled></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">缩略图</label>
+                    <div class="layui-input-inline">
+                        <input type="hidden" id="img" name="img" lay-verify="required" >
+                        <button style="float: left;" type="button" class="layui-btn" id="imgUpload">上传图片</button>
+                    </div>
+                    <span id="showImg"></span>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">作者</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="author" required value="1"  lay-verify="required" autocomplete="off" class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" id="status" name="status" lay-skin="switch" lay-text="去审核|不发布">
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">是否置顶</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" id="isTop" name="isTop" lay-skin="switch" lay-text="是|否">
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">简介</label>
+                    <div class="layui-input-block">
+                        <textarea name="intro" placeholder="请输入简介" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block layui-hide">
+                        <button class="layui-btn" lay-submit lay-filter="LAY-article-front-submit" id="LAY-article-front-submit">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    /*使用模块加载的方式 加载文件*/
+    layui.config({
+        base: '../../layui/'
+    }).extend({
+        treeSelect: "treeSelect"
+    }).use(['layer', 'treeSelect','form','upload'], function () {
+        var $ = layui.jquery;
+        var upload = layui.upload;
+        var element = layui.element;
+        var form = layui.form;
+
+        upload.render({
+            elem: '#imgUpload'
+            ,url: "/api/article/thumb"
+            ,accept: 'images'
+            ,method: 'post'
+            ,acceptMime: 'image/*'
+            ,done: function(res){
+                document.getElementById("img").value=res.data;
+                document.getElementById("showImg").innerText = res.data;
+                layer.msg("上传成功",{icon: 1,time: 1000});
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

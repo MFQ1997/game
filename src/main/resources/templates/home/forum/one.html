@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${forum.name}"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+
+    <style>
+        .layui-btn-gray {
+            border: 1px solid #f2f2f2;
+            background-color: #f2f2f2;
+            color: #555
+        }
+        .layui-btn-gray:hover {
+            background-color: #009688;
+            color: #ffffff;
+        }
+        .classify-list li{
+            float: left;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .layui-table-cell{
+            height:50px;
+            line-height: 50px;
+        }
+        .layui-table-hover{
+            -webkit-transform: translateY(-5px);
+            -ms-transform: translateY(-5px);
+            transform: translateY(-5px);
+            -webkit-box-shadow: 0 0 6px #999;
+            box-shadow: 0 0 6px #999;
+            -webkit-transition: all .5s ease-out;
+            transition: all .5s ease-out;
+        }
+        .selected{
+            background: #009688;
+            color: #ffffff;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+
+<div style="background: #ffffff;margin: 0px 0px;">
+    <div class="layui-container">
+        <div class="layui-card">
+            <div class="layui-card-header">
+            <span class="layui-breadcrumb">
+                <a><cite>当前位置：</cite></a>
+                <a href="/">首页</a>
+                <a href="/bbs/">论坛</a>
+                <a><cite><span th:text="${forum.name}"></span></cite></a>
+            </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="one-back">
+    <div class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md2 layui-col-sm4 layui-col-xs6">
+                <div class="cmdlist-container">
+                    <a href="javascript:;"><img th:src="${forum.photo}"></a>
+                </div>
+            </div>
+            <div class="layui-col-md10 layui-col-sm8 layui-col-xs6">
+                <div class="cmdlist-text">
+                    <i class="oneinfo" th:text="${forum.name}"></i>
+                    <div class="mes">
+                        <div class="layui-row ">
+                            <div class="layui-col-md6">
+                                <div class="fly-sns onetext">
+                                    <div class="layui-row">
+                                        <span th:if="${isJoin} eq 0" class="layui-btn layui-btn-danger join" data-type="join" th:data-forum-id="${forum.id}">+ 入住</span>
+                                        <span th:if="${isJoin} eq 1" class="layui-btn layui-btn-danger join" data-type="unjoin" style="background: #5cb85c" th:data-forum-id="${forum.id}">已入住</span>
+                                    </div>
+                                    <div class="layui-row">
+                                        <p th:utext="${forum.remark}"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md8 layui-sm-8 layui-xs12 white-back">
+            <div class="layui-row">
+                <div style="text-align: center">
+                    <ul class="classify-list">
+                        <li><span class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-list"></i>主题数：<b th:text="${data.topicCount}"></b></span></li>
+                        <li><span class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-dialogue"></i>评论数：<b th:text="${data.commentCount}"></b></span></li>
+                        <li><span class="layui-btn layui-btn-primary"><i class="layui-icon layui-icon-reply-fill"></i>回复数：<b th:text="${data.replyCount}"></b></span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="layui-row" style="border-bottom: 1px solid #f2f2f2;margin-bottom: 15px">
+                <!--<div th:include="/home/forum/column :: column" ></div>-->
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <div style="border-bottom: 1px solid #eeeeee">
+                            <ul class="classify-list">
+                                <shiro:hasPermission name="forumclassigy:add">　　
+                                    <li> <a th:href="@{'/forum/module/classify/add/'+${forum.id}}"+ class="layui-btn layui-btn-danger">添加分类</a></li>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="forumclassify:edit">　　
+                                    <li> <a th:href="@{'/forum/module/classify/edit/'+${forum.id}}"+ class="layui-btn layui-btn-normal" target="_blank">编辑分类</a></li>
+                                </shiro:hasPermission>
+                                <li> <a th:href="@{'/topic/add/'+${forum.id}}"+ class="layui-btn">发表新帖</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="layui-card-body">
+                        <ul class="classify-list">
+                            <li>
+                                <a class="layui-btn layui-btn-gray selected" th:onclick="findAll()" >全部</a>
+                            </li>
+                            <li th:each="c:${classify}">
+                                <a class="layui-btn layui-btn-gray" th:onclick="findByClassifyInForum(this,[[${c.id}]])" th:text="${c.name}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row">
+                <!--这是使用table的形式进行数据的重载-->
+                <div id="topicTableDiv" class="layui-hide">
+                    <script type="text/html" id="urlTemplate">
+                        <h3><a target="_blank" href="/bbs/one/topic/{{d.id}}">{{d.title}}</a></h3>
+                    </script>
+                    <table id="topic-list" lay-filter="topic-list" lay-data="{id:'topic-list'}"></table>
+                </div>
+                <div id="topicListDiv">
+                    <!--这是使用流加载的形式-->
+                    <ul class="mgame-topic-list" id="topicList"></ul>
+                </div>
+
+            </div>
+        </div>
+        <div class="layui-col-md3 layui-col-sm12 layui-col-xs12 white-back">
+            <div class="layui-card">
+                <div  class="layui-card-header">
+                    <div class="cmdlist-text">
+                        <div class="mes">
+                            <b>本版管理员</b>
+                            <span class="flow"><a th:href="@{'/bbs/forum/apply/'+${forum.id}}">我要申请</a></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card-body">
+
+                    <div style="text-align: center" th:if="${masterSize} eq 0">暂无</div>
+                    <div th:if="${masterSize} gt 0">
+                        <div class="layui-col-md4 layui-col-sm2 layui-col-xs2" th:each="master:${master}">
+                        <div class="cmdlist-container">
+                            <a href="javascript:;"><img th:src="${master.img}"></a>
+                            <a href="javascript:;">
+                                <div class="cmdlist-text">
+                                    <i class="miniinfo" th:text="${master.userName}">爱吃plum的傻狗</i>
+                                    <div class="mes">
+                                        <div class="layui-row">
+                                            <a th:href="@{'/bbs/home/'+${master.userId}}" class="layui-btn  layui-btn-xs minihrefin layui-btn-fluid">访问主页</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+
+<script th:inline="javascript">
+    function findAll() {
+        window.location.reload();
+    }
+    function findByClassifyInForum(elem,classifyId) {
+        var $ = layui.$;
+        $('ul.classify-list li a').on('click',function(e){
+            $(this).addClass("selected");
+            $(this).parent().siblings().children().removeClass("selected");
+        });
+        $('#topicListDiv').hide();
+        $('#topicTableDiv').removeClass('layui-hide');
+        var forumId = [[${forum.id}]];
+        layui.use('table',function () {
+            var table = layui.table;
+            //执行重载
+            table.reload('topic-list', {
+                method:'get',
+                url: '/api/topic/roll/'+forumId+'/'+classifyId,
+                page: {
+                    curr: 1 //从当前页码开始
+                }
+            });
+        })
+
+        
+    }
+</script>
+
+<script th:inline="javascript">
+   layui.use(['table'],function () {
+       var table = layui.table;
+       var $ = layui.$;
+       var forumId = [[${forum.id}]];
+       table.render({
+           skin: 'nob', //行边框风格
+           elem: '#topic-list',
+           url: "/api/topic/roll/"+forumId,
+           request: {
+                pageName: 'page' //页码的参数名称，默认：page
+                ,limitName: 'limit' //每页数据量的参数名，默认：limit
+           },
+           parseData: function(res){
+                return {
+                    "code":res.code,
+                    "msg":res.msg,
+                    "count":res.count,
+                    "data": res.data.list //解析数据列表
+                };
+            }
+           ,cols: [
+               [
+               {field:'title',templet:'#urlTemplate'}
+               ,{field:'createTime',width: '25%'}
+               ]
+           ],
+           page: true,
+           limit: 10,
+           /*height: "full-220",*/
+           text: {
+               none: '该分类下无数据', //默认：无数据。注：该属性为 layui 2.2.5 开始新增
+               error: '对不起，加载异常'
+           },
+           done: function(){
+               $('th').hide();//表头隐藏的样式
+               $('.layui-table-page').css('text-align','center');//页码部分的高度调整
+           }
+       });
+       $('th').hide();//表头隐藏的样式
+   })
+</script>
+
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','util','flow','rate','layer'], function(){
+        var $ = layui.jquery;
+        var element = layui.element;
+        var util = layui.util;
+        var flow = layui.flow;
+        var rate = layui.rate;
+        var layer = layui.layer;
+       /* window.onload= function () {
+            var token = layui.data('mGame').token;
+            console.log("layui中存储的token是"+token);
+            //板块操作
+        }*/
+        //流加载图片
+        var imgNums = 10;  //单页显示图片数量
+        var id = [[${forum.id}]];
+        flow.load({
+            elem: '#topicList', //指定列表容器
+            isAuto:false
+            ,done: function(page, next){ //到达临界点（默认滚动触发），触发下一页
+                var lis = [];
+
+                //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
+                $.get('/api/topic/roll/'+id+'?page='+page+ '&limit=10', function(res){
+                    //假设你的列表返回在data集合中
+                    layui.each(res.data.list, function(index, item){
+
+                        lis.push(
+                            ' <li>'
+                            +'<h2><a href='+'\"/bbs/one/topic/'+item.id+'\"+' +'title="" target="_blank">'+item.title+'</a></h2>'
+
+                            + '<div class="mgame-topic-list-info"> '
+                                +'<span><i>阅读量：</i>'+item.view+'</span>'
+                                +'<span><i>收藏量：</i>'+item.collect+'</span>'
+                            +'</div>'
+                            +'<span class="mgame-topic-list-nums"<i class="layui-icon layui-icon-date" ></i>'+item.createTime +'</span>'
+                            +'</li>'
+                        );
+                    });
+
+                    //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+                    //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+                    next(lis.join(''), page < res.count/10);
+                });
+            }
+        });
+        //固定块
+        util.fixbar({});
+        //事件
+        var active = {
+            join: function(){
+                var forumModuleId = $(this).attr('data-forum-id');
+                $.ajax({
+                    url:"/api/user/join",
+                    type: 'POST',
+                    data:{
+                        "forumModuleId":forumModuleId,
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            },
+            unjoin:function () {
+                var forumModuleId = $(this).attr('data-forum-id');
+                $.ajax({
+                    url:"/api/user/unjoin",
+                    type: 'POST',
+                    data:{
+                        "forumModuleId":forumModuleId,
+                    },
+                    success: function(data){
+                        if(data.code ==0){
+                            layer.msg(data.msg,{icon:1,time: 1000},function () {
+                                window.location.reload();
+                            })
+                        }else {
+                            layer.msg(data.msg,{icon:0,time:1000});
+                        }
+                    }
+                });
+                return false;
+            }
+        }
+        $('.layui-btn.layui-btn-danger.join').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+
+    });
+</script>
+
+</body>
+</html>

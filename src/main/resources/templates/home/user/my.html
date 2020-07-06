@@ -1,0 +1,321 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>登录用户的主页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+
+    <style>
+        .layui-tab-title li {
+            display: inline-block;
+            *display: inline;
+            *zoom: 1;
+            vertical-align: middle;
+            font-size: 14px;
+            transition: all .2s;
+            -webkit-transition: all .2s;
+            position: relative;
+            line-height: 40px;
+            min-width: 65px;
+            width: 20%;
+            padding: 0 15px;
+            text-align: center;
+            cursor: pointer
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+
+<div class="fly-home fly-panel">
+    <img th:src="${me.img}" th:alt="${me.userName}">
+    <h3 th:text="${me.userName}"> <i class="layui-icon layui-icon-edit"></i></h3>
+    <h5 th:text="${me.intro}"><i class="layui-icon layui-icon-edit"></i></h5>
+</div>
+
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md6 fly-home-jie">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    Ta的帖子：
+                </div>
+                <div class="layui-card-body">
+                    <div class="row">
+                        <ul class="mgame-topic-list"></ul>
+                        <div style="text-align: center" id="userTopicPage"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6 fly-home-jie">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    Ta的回复：
+                </div>
+                <div class="layui-card-body">
+                    <div class="row">
+                        <div id="replyList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-col-md6 fly-home-da">
+            <div class="layui-row">
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        已入住的板块：
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space10">
+
+
+
+                            <ul id="mgame-forum-module-list"></ul>
+                           <!-- <div class="layui-col-md2 layui-col-sm4 layui-col-xs6">
+                                <div class="cmdlist-container">
+                                    <a href="javascript:;"><img src="/img/home/bbs/test.png"></a>
+                                    <a href="javascript:;">
+                                        <div class="cmdlist-text">
+                                            <i class="miniinfo">王者荣耀</i>
+                                            <div class="mes">
+                                                <a href="/topic/add" class="layui-btn hrefin layui-btn-fluid">进入</a>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>-->
+                            <div style="text-align: center" id="userForumModulePage"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','util','flow'], function(){
+        var $ = layui.jquery;
+        var element = layui.element;
+        var util = layui.util;
+        var flow = layui.flow;
+
+        window.onload= function () {
+            loadTopicData();getTopicPage();
+            loadReplyData();//回复操作
+            loadForumModuleData();getForumModulePage();
+
+        }
+        var page=1; //设置首页页码
+        var limit=12;  //设置一页显示的条数
+        var total;    //总条数
+        function loadTopicData(){
+            $.ajax({
+                type:"post",
+                url:"/api/topic/user/"+[[${me.id}]],//对应controller的URL
+                async:false,
+                dataType: 'json',
+                data:{
+                    "page":page,
+                    "limit":limit,
+                },
+                success:function(ret){
+                    total=ret.data.total;  //设置总条数
+                    var data1=ret.data.list;
+                    var html='';
+                    for(var i=0;i<data1.length;i++){
+                        html+=' <li>';
+                        html+='<h2><a href='+'\"/bbs/one/topic/'+data1[i].id+'\"+' +'title="">'+data1[i].title+'</a></h2>';
+                        html+= '<div class="mgame-topic-list-info"> ';
+                        html+='<span><i class="layui-icon layui-icon-date" title="阅读"></i>'+data1[i].view+'</span>';
+                        html+='<span><i class="layui-icon layui-icon-date" title="回答"></i>'+data1[i].collect+'</span>';
+                        html+='</div>';
+                        html+='<span class="mgame-topic-list-nums"<i class="layui-icon layui-icon-date" ></i>'+data1[i].createTime +'</span>';
+                        html+='</li>';
+                    }
+                    $(".mgame-topic-list").empty().append(html);
+                }
+            });
+        }
+        function getTopicPage(){
+            layui.use('laypage', function(){
+                var laypage = layui.laypage;
+                var $  = layui.$;
+
+                //执行一个laypage实例
+                laypage.render({
+                    elem: 'userTopicPage' //注意，这里的 test1 是 ID，不用加 # 号
+                    ,count: total, //数据总数，从服务端得到
+                    limit:limit,   //每页条数设置
+                    jump: function(obj, first){
+                        //obj包含了当前分页的所有参数，比如：
+                        console.log("大年夜"+obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+                        console.log(obj.limit); //得到每页显示的条数
+                        page=obj.curr;  //改变当前页码
+                        limit=obj.limit;
+                        //首次不执行
+                        if(!first){
+                            loadTopicData()  //加载数据
+                        }
+                    }
+                });
+            });
+        }
+        function loadForumModuleData(){
+            $.ajax({
+                type:"Get",
+                url:"/api/module/user/join",//对应controller的URL
+                async:false,
+                /*dataType: 'json',*/
+                data:{
+                    "page":page,
+                    "limit":limit,
+                },
+                success:function(ret){
+                    total=ret.data.total;  //设置总条数
+                    var data1=ret.data.list;
+                    var html='';
+                    for(var i=0;i<data1.length;i++){
+                        html+=' <li>';
+                        html+='<div class="layui-col-md2 layui-col-sm4 layui-col-xs6">';
+                        html+='<div class="cmdlist-container">';
+                        html+=' <a href=\"javascript:;\"><img src=\"'+data1[i].photo+'\"></a>';
+                        html+='<a href="javascript:;">';
+                        html+='<div class="cmdlist-text">';
+                        html+='<i class="miniinfo">'+data1[i].name+'</i>';
+                        html+='<div class="mes">';
+                        html+='<a target="_blank" href='+'\"/bbs/one/'+data1[i].id+'\" class="layui-btn hrefin layui-btn-fluid">进入</a>';
+                        html+='</div>';
+                        html+='</div>';
+                        html+=' </a>';
+                        html+='</div>';
+                        html+='</div>';
+                        html+='</li>';
+                    }
+                    $("#mgame-forum-module-list").empty().append(html);
+                }
+            });
+        }
+        function getForumModulePage(){
+            layui.use('laypage', function(){
+                var laypage = layui.laypage;
+                var $  = layui.$;
+
+                //执行一个laypage实例
+                laypage.render({
+                    elem: 'userForumModulePage' //注意，这里的 test1 是 ID，不用加 # 号
+                    ,count: total, //数据总数，从服务端得到
+                    limit:limit,   //每页条数设置
+                    jump: function(obj, first){
+                        page=obj.curr;  //改变当前页码
+                        limit=obj.limit;
+                        //首次不执行
+                        if(!first){
+                            loadForumModuleData()  //加载数据
+                        }
+                    }
+                });
+            });
+        }
+
+
+        function loadReplyData(){
+            flow.load({
+                elem: '#replyList' //指定列表容器
+                ,done: function(page, next){ //到达临界点（默认滚动触发），触发下一页
+                    var lis = [];
+
+                    //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
+                    $.get('/api/reply/roll/'+[[${me.id}]]+'?page='+page+ '&limit=10', function(res){
+                        //假设你的列表返回在data集合中
+                        layui.each(res.data.list, function(index, item){
+                            lis.push(
+                                '<div class="layui-card">'+
+                                '<div class="layui-card-header">'+ 'Ta在'+item.time+'的时候回答了一下内容'+ '</div>'+
+                                '<div class="layui-card-body" style="background: #f2f2f2">'+ item.content +'</div>'+
+                                '</div>'
+                            );
+                        });
+
+                        //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+                        //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+                        next(lis.join(''), page < res.count/10);
+                    });
+                }
+            });
+        }
+
+        //固定块
+        util.fixbar({});
+        //…
+    });
+</script>
+
+
+<script>
+
+
+
+</script>
+<!--<script>
+    layui.use('laypage', function(){
+        var laypage = layui.laypage;
+
+        //执行一个laypage实例
+        laypage.render({
+            elem: 'test1' //注意，这里的 test1 是 ID，不用加 # 号
+            ,count: 50 //数据总数，从服务端得到
+        });
+    });
+</script>-->
+<!--<script>
+    layui.cache.page = 'user';
+    layui.cache.user = {
+        username: '游客'
+        ,uid: -1
+        ,avatar: '../../res/images/avatar/00.jpg'
+        ,experience: 83
+        ,sex: '男'
+    };
+    layui.config({
+        version: "3.0.0"
+        ,base: '../../res/mods/'
+    }).extend({
+        fly: 'index'
+    }).use('fly');
+</script>-->
+
+<script>
+    //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+    layui.use('element', function(){
+        var element = layui.element;
+
+        //…
+    });
+</script>
+
+</body>
+</html>

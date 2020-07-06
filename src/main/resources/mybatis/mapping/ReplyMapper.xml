@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.ReplyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Reply">
+        <id column="id" property="id" />
+        <result column="comment_id" property="commentId" />
+        <result column="reply_id" property="replyId" />
+        <result column="reply_type" property="replyType" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="to_user_id" property="toUserId" />
+        <result column="time" property="time" />
+    </resultMap>
+    <resultMap id="ResultMapWithAllMes" type="mai.game.dto.ReplyDTO">
+        <id column="id" property="id" />
+        <result column="topic_name" property="topicName" />
+        <result column="comment_id" property="commentId" />
+        <result column="comment_content" property="commentContent" />
+        <result column="reply_id" property="replyId" />
+        <result column="reply_type" property="replyType" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="user_name" property="userName" />
+        <result column="to_user_id" property="toUserId" />
+        <result column="to_user_name" property="toUserName" />
+        <result column="time" property="time" />
+    </resultMap>
+
+    <resultMap id="ReplyWithUserNameAndPhoto" type="mai.game.entity.vo.ReplyVO">
+        <id column="id" property="id" />
+        <result column="comment_id" property="commentId" />
+        <result column="reply_id" property="replyId" />
+        <result column="reply_type" property="replyType" />
+        <result column="content" property="content" />
+        <result column="user_id" property="userId" />
+        <result column="to_user_id" property="toUserId" />
+        <result column="time" property="time" />
+        <result column="user_name" property="userName" />
+        <result column="photo" property="photo" />
+    </resultMap>
+
+    <select id="findAllReply" resultMap="BaseResultMap">
+        select * from t_reply
+    </select>
+    <select id="findAllReplyDTO" resultMap="ResultMapWithAllMes">
+        select r.*,u.user_name user_name,u1.user_name to_user_name,c.content comment_content,t.title topic_name
+        from t_reply r
+				LEFT JOIN t_comment c on c.id=r.comment_id
+				LEFT JOIN t_topic t on t.id=c.topic_id
+                left join t_user u on u.id=r.user_id
+				left join t_user u1 on u1.id=r.to_user_id
+
+    </select>
+
+    <select id="getReplyIdByCommentId" resultType="list">
+        select id from t_reply where comment_id = #{id}
+    </select>
+
+    <select id="getReplyWithUserNameAndPhotoList" resultMap="ReplyWithUserNameAndPhoto" parameterType="Integer">
+        select t_reply.*,t_user.user_name,t_user.img photo,t_comment.topic_id,t_comment.id,t_topic.id
+        from t_reply,t_user,t_comment,t_topic
+        where t_comment.id = t_reply.comment_id
+				AND t_comment.topic_id = t_topic.id
+				AND t_reply.user_id=t_user.id
+				And topic_id = #{topicId}
+    </select>
+    <select id="findAllReplyByUserId" parameterType="Integer" resultMap="BaseResultMap">
+        select * from t_reply where user_id=#{userId}
+    </select>
+
+</mapper>

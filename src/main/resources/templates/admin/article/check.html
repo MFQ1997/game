@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>审核</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+</head>
+<body>
+
+<div class="layui-container" style="margin-top: 15px">
+    <div class="layui-row">
+        <span class="layui-breadcrumb">
+            <a href="/">首页</a>
+            <a><cite>资讯</cite></a>
+        </span>
+    </div>
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md9 content detail">
+            <div class="fly-panel detail-box">
+                <h1 th:text="${article.title}"></h1>
+                <div class="fly-detail-info">
+                    <span>
+                        发布日期：<i th:text="${#dates.format(article.time, 'yyyy-MM-dd HH:mm:ss')}"></i>
+                        阅读量：<i th:text="${article.view}"></i>
+                    </span>
+                </div>
+                <!--内容主题-->
+                <div class="detail-body">
+
+                    <div th:if="${article.classifyId} eq 5">
+                        <p th:utext="${article.intro}"></p>
+                        <p style="text-align: center">
+                            <iframe frameborder="0" height="498" th:src="${article.content}" width="510"></iframe>
+                        </p>
+                    </div>
+                    <div th:if="${article.classifyId} neq 5">
+                        <p th:utext="${article.content}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-md3 layui-col-sm12 layui-col-xs12 white-back">
+            <!--楼主信息-->
+            <div class="layui-card" style="margin-bottom: 15px">
+                <div class="layui-card-header">
+                    作者
+                </div>
+                <div class="layui-card-body">
+                    <div class="fly-home fly-panel">
+                        <img th:src="${author.img}" th:alt="${author.userName}">
+                        <i class="iconfont icon-renzheng" title="Fly社区认证"></i>
+                        <h1 th:text="${author.userName}"></h1>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    审核设置
+                </div>
+                <div class="layui-card-body">
+                    <form class="layui-form layui-form-pane">
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">状态</label>
+                            <div class="layui-input-block">
+                                <div th:if="${article.status eq 1}">
+                                    <input type="checkbox" id="status" name="status" lay-skin="switch"  lay-filter="status" lay-text="通过|不通过">
+                                </div>
+                                <div th:if="${article.status eq 2}">
+                                    <input type="checkbox" id="status" name="status" lay-skin="switch"  lay-filter="status" lay-text="通过|不通过" checked>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">是否置顶</label>
+                            <div class="layui-input-block">
+                                <div th:if="${article.isTop eq 0}">
+                                    <input type="checkbox" id="isTop" name="isTop" lay-filter="isTop" lay-skin="switch"  lay-text="是|否">
+                                </div>
+                                <div th:if="${article.isTop eq 1}">
+                                    <input type="checkbox" id="isTop" name="isTop" lay-filter="isTop" lay-skin="switch"  lay-text="是|否" checked>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script th:inline="javascript">
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form','mgameAdmin'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+
+        form.on('switch(status)', function (obj) {
+            var checked = obj.elem.checked;
+            var status = 1;
+            console.log(checked); //开关是否开启，true或者false
+            if (checked) {
+                status = 2;
+            }
+            //获取所需属性值
+            var id = [[${article.id}]];//获得文章的id
+            console.log(id);
+            $.ajax({
+                url: '/api/article/status/' + id + '/' + status,
+                type: 'put',
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {offset: '15px', icon: 1, time: 1000})
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+        });
+        form.on('switch(isTop)', function (obj) {
+            var checked = obj.elem.checked;
+            var status = 0;
+            if (checked) {
+                status = 1;
+            }
+            //获取所需属性值
+            var id = [[${article.id}]];//获得文章的id
+            $.ajax({
+                url: '/api/article/top/' + id + '/' + status,
+                type: 'put',
+                success: function (data) {
+                    if (data.code == 0) {
+                        layer.msg(data.msg, {offset: '15px', icon: 1, time: 1000})
+                    } else {
+                        layer.msg(data.msg, {icon: 0, time: 1000});
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.TopicMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Topic">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="user_id" property="userId" />
+        <result column="is_top" property="isTop" />
+        <result column="is_discuss" property="isDiscuss" />
+        <result column="is_good" property="isGood" />
+        <result column="view" property="view" />
+        <result column="collect" property="collect" />
+        <result column="classify_id" property="classifyId" />
+    </resultMap>
+
+    <resultMap id="TopicWithUserImgMap" type="mai.game.dto.TopicWithUserName">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="user_id" property="userId" />
+        <result column="img" property="userImg" />
+        <result column="is_top" property="isTop" />
+        <result column="is_discuss" property="isDiscuss" />
+        <result column="is_good" property="isGood" />
+        <result column="view" property="view" />
+        <result column="collect" property="collect" />
+        <result column="classify_id" property="classifyId" />
+    </resultMap>
+
+
+
+    <select id="findAllTopic" resultMap="BaseResultMap" parameterType="Integer">
+        select * from t_topic where forum_id = #{forumId} order by create_time desc
+    </select>
+
+    <select id="findAllTopicByForumIdAndClassify" resultMap="BaseResultMap" parameterType="Integer">
+        select * from t_topic where forum_id = #{forumId} and classify_id=#{classifyId} order by create_time desc
+    </select>
+
+
+    <select id="findTopicByLikeName" resultMap="BaseResultMap">
+        select * from t_topic WHERE title like concat('%',#{name},'%')
+    </select>
+
+    <select id="getTopicByUserId" resultMap="BaseResultMap">
+        select * from t_topic where user_id =#{userId}
+    </select>
+    <select id="getCollectedOfUserByUserId" resultMap="BaseResultMap">
+        select t_topic.*
+        from t_topic,t_user_collect
+        where t_user_collect.t_topic = t_topic.id
+        and t_user_collect.t_user=#{userId}
+    </select>
+
+    <select id="getUserTotalTopicCountNumber" resultType="int">
+        select count(*) from t_topic where user_id =#{userId}
+    </select>
+    <select id="getHotTopicRanking" resultMap="BaseResultMap" parameterType="Integer">
+        select t_topic.*,t_topic_hot_weight.weight
+        from t_topic,t_topic_hot_weight
+        where t_topic.id=t_topic_hot_weight.topic_id
+        order by weight desc ,create_time desc  Limit #{limit}
+    </select>
+    <select id="getHotTopicRankingWithUserImg" resultMap="TopicWithUserImgMap" parameterType="Integer">
+        select t_topic.*,t_topic_hot_weight.weight,t_user.id user_id,t_user.img img
+        from t_topic,t_topic_hot_weight,t_user
+        where t_topic.id=t_topic_hot_weight.topic_id
+        and t_topic.user_id=t_user.id
+        order by weight desc ,create_time desc  Limit #{limit}
+    </select>
+    <select id="getOneDay" resultType="Integer" parameterType="Integer">
+        SELECT count(*) FROM t_topic WHERE TO_DAYS(NOW()) - TO_DAYS(create_time) = #{interval}
+    </select>
+
+    <select id="getOneYear"  resultType="java.util.Map">
+        select count(*) as 'number',left(create_time,7) as 'month' from t_topic
+		where DATE_FORMAT(create_time,'%Y-%m')>
+		DATE_FORMAT(date_sub(curdate(), interval 12 month),'%Y-%m')
+		group by month;
+    </select>
+
+</mapper>

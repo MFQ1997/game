@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+</head>
+<body style="color: #444; margin:0;font: normal 14px/20px Arial, Helvetica, sans-serif; height:100%; background-color: #fff;">
+<div style="height:auto; min-height:100%; ">
+    <div style="text-align: center; width:800px; margin-left: -400px; position:absolute; top: 30%; left:50%;">
+        <h1 style="margin:0; font-size:150px; line-height:150px; font-weight:bold;">未登录</h1>
+        <h2 style="margin-top:20px;font-size: 30px;">UnLogin</h2>
+        <p>You are not logged in!</p>
+        <div class="button">
+            <h2>
+                <a href="/" style="color: #444;">返回首页</a>
+                <a href="#" onClick="javascript :history.back(-1);">返回上一页</a>
+            </h2>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+</body>
+</html>

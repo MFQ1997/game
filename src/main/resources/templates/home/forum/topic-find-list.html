@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>帖子搜素</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+
+    <style>
+        .mini-list li{
+            text-align: center;
+            font-size: 13px;
+            padding-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+<div class="layui-container">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md10 layui-col-sm10 layui-col-xs12">
+            <div class="layui-row">
+                <div th:if="${size} eq 0">
+                    <div style="text-align: center;min-height: 300px">
+                        <div style="padding-top: 100px">
+                            <i class="layui-icon layui-icon-face-cry" style="font-size: 30px;color: red;"></i>
+                            &nbsp;&nbsp;
+                            <span style="font-size: 30px;color: red;font-weight: bold;">此次搜索无结果</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <span class="layui-breadcrumb">
+                            <a href="/">首页</a>
+                            <a href="/bbs">论坛</a>
+                            <a><cite>搜索</cite></a>
+                            <a><cite style="color: red;font-weight: bold" th:text="${title}"></cite></a>
+                        </span>
+                    </div>
+                </div>
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <ul class="mgame-topic-list" >
+                            <li th:each="topic:${topicList}">
+                                <h2><a th:href="@{'/bbs/one/topic/'+${topic.id}}" th:text="${topic.title}"></a></h2>
+                                <div class="mgame-topic-list-info">
+                                    <span><i class="iconfont" title="阅读量">&#xe60b;</i><span th:text="${topic.view}"></span></span>
+                                </div>
+                                <span class="mgame-topic-list-nums"><i class="layui-icon layui-icon-date" th:text="${#dates.format(topic.createTime, 'yyyy-MM-dd HH:mm:ss')}"></i></span>
+                                <div class="mgame-topic-list-badge">
+                                    <span class="layui-badge layui-bg-black" th:if="${topic.isTop} eq 1">置顶</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:include="/home/common/footer :: footer" ></div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['element','util'], function(){
+        var $ = layui.jquery;
+        var element = layui.element;
+        var util = layui.util;
+
+        //固定块
+        util.fixbar({});
+        //…
+    });
+</script>
+
+</body>
+</html>

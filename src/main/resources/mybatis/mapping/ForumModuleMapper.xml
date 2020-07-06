@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.ForumModuleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.ForumModule">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="photo" property="photo" />
+        <result column="master" property="master" />
+        <result column="create_time" property="createTime" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <resultMap id="masterMessageResult" type="mai.game.dto.MasterDTO">
+        <result column="user_id" property="userId"></result>
+        <result column="user_name" property="userName"></result>
+        <result column="img" property="img"></result>
+        <result column="topic_count" property="topicCount"></result>
+        <result column="comment_count" property="commentCount"></result>
+        <result column="reply_count" property="replyCount"></result>
+        <result column="fan_count" property="fanCount"></result>
+        <result column="vote_count" property="voteCount"></result>
+    </resultMap>
+    <resultMap id="findAllForumModuleWithMasterNameMap" type="mai.game.dto.ForumModuleDTO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="photo" property="photo" />
+        <result column="master" property="master" />
+        <result column="master_name" property="masterName" />
+        <result column="create_time" property="createTime" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <select id="findAllForumModule" resultMap="BaseResultMap">
+        select * from t_forum_module
+    </select>
+    <select id="findAllForumModuleWithMasterName" resultMap="findAllForumModuleWithMasterNameMap">
+        select  tfm.*,ifnull(t_user.user_name,'暂无') master_name
+        from t_forum_module tfm
+        left join t_user on t_user.id=tfm.master
+    </select>
+    
+    <sql id="all_column">
+        id,name,photo,master,create_time,status,remark
+    </sql>
+
+    <select id="findUserByLikeName" resultMap="BaseResultMap">
+        select * from t_forum_module WHERE name like concat('%',#{name},'%')
+    </select>
+    
+    <select id="findAllForumModuleNyAlphabet" resultMap="BaseResultMap">
+        select <include refid="all_column"></include> from t_forum_module where get_first_pinyin_char(name) = #{alphabet}
+    </select>
+    <select id="findSixOrderByTime" resultMap="BaseResultMap">
+        select * from t_forum_module order by create_time desc Limit 6
+    </select>
+
+    <select id="findEightOrderByTime" resultMap="BaseResultMap">
+        select * from t_forum_module order by create_time desc Limit 8
+    </select>
+    <select id="getUserForumModuleHistoryList" parameterType="java.util.List" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_module fm
+        WHERE  fm.status = 1 and
+        fm.id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">#{item}</foreach>
+
+    </select>
+    <select id="getForumModule" resultMap="BaseResultMap" parameterType="Integer">
+        select * from t_forum_module
+        order by create_time desc  Limit #{limit}
+    </select>
+
+    <select id="getHotForumModuleRanking" resultMap="BaseResultMap" parameterType="Integer">
+        select t_forum_module.*
+        from t_forum_module,t_forum_module_weight
+        where t_forum_module.id=t_forum_module_weight.forum_module_id
+        order by weight desc ,create_time desc  Limit #{limit}
+    </select>
+    <select id="getJoinedOfUserByUserId" resultMap="BaseResultMap" parameterType="Integer">
+        select t_forum_module.*
+        from t_forum_module,t_user_forum_module
+        where t_user_forum_module.forum_module_id = t_forum_module.id
+        and t_user_forum_module.user_id=#{userId}
+    </select>
+    <select id="getMasterByForumModuleId" parameterType="Integer" resultMap="masterMessageResult">
+        select t_user.id user_id, t_user.user_name user_name,t_user.img img
+        from t_forum_module tfm
+        inner join t_user on tfm.master=t_user.id
+        where tfm.id=#{id}
+    </select>
+
+    <!--查询热度值前五的板块的帖子、评论、回复的数量-->
+    <select id="getForumModuleWithHotValueByForumId" resultType="mai.game.dto.FiveHotForumDTO">
+         select t_forum_module.name,
+        (select count(t_topic.id) from t_topic where t_forum_module.id=t_topic.forum_id) topic_count,
+        (select count(t_comment.id) from t_comment left join t_topic on t_comment.topic_id=t_topic.id where t_forum_module.id=t_topic.forum_id) comment_count,
+        (select count(t_reply.id) from t_reply left join t_comment on t_reply.comment_id=t_comment.id left join t_topic on t_comment.topic_id=t_topic.id where t_forum_module.id=t_topic.forum_id) reply_count
+        from t_forum_module where id=#{id}
+    </select>
+    <select id="getCountDataByForumId" resultType="mai.game.dto.FiveHotForumDTO">
+        select t_forum_module.name,
+        (select count(t_topic.id) from t_topic where t_forum_module.id=t_topic.forum_id) topic_count,
+        (select count(t_comment.id) from t_comment left join t_topic on t_comment.topic_id=t_topic.id where t_forum_module.id=t_topic.forum_id) comment_count,
+        (select count(t_reply.id) from t_reply left join t_comment on t_reply.comment_id=t_comment.id left join t_topic on t_comment.topic_id=t_topic.id where t_forum_module.id=t_topic.forum_id) reply_count
+        from t_forum_module where id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<body th:fragment="header">
+
+<div class="layui-container" style="height: 60px;margin-top: 5px">
+
+    <div class="layui-row">
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs12 ">
+            <span style="font-size: 16px;padding:12px">
+                <ul class="layui-clear">
+                    <li style="padding-right:15px " class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="/bbs/">论坛首页</a></li>
+                    <li style="padding-right:15px " class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><a href="/bbs/mlist">论坛板块</a></li>
+
+                    <li style="padding-right:15px " class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"  th:if="${session.user} neq null"><a th:href="@{'/home/'+${session.user.id}}">个人中心</a></li>
+
+                    <li style="padding-right:15px " class="layui-hide-md layui-show-sm-inline-block layui-show-xs-inline-block"><a href="/bbs/">论坛首页</a></li>
+                    <li style="padding-right:15px " class="layui-hide-md layui-show-sm-inline-block layui-show-xs-inline-block"><a href="/bbs/mlist">论坛板块</a></li>
+                    <li style="padding-right:15px " class="layui-hide-md layui-show-sm-inline-block layui-show-xs-inline-block"  th:if="${session.user} neq null"><a th:href="@{'/home/'+${session.user.id}}">个人中心</a></li>
+                </ul>
+            </span>
+        </div>
+        <div class="layui-col-md2 layui-col-sm6 layui-col-xs12">
+            <a  href="/">
+                <img src="/img/sys/logo.png" alt="mGame" style="height: 60%">
+            </a>
+        </div>
+        <div class="layui-col-md4 layui-col-sm12 layui-col-xs12">
+                <form class="layui-form" action="/bbs/topic/find/" method="post">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline">
+                                <input type="text" name="title" placeholder="请输入帖子标题" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn layuiadmin-btn-admin" lay-submit>
+                                <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>

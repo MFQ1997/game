@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>角色编辑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link rel="stylesheet" th:href="@{/style/admin.css}"/>
+    <script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-form layui-form-pane">
+                <input type="hidden" name="id" th:value="${role.id}" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">角色名称</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" type="text" name="roleName" th:value="${role.roleName}" />
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <div th:if="${role.status eq 0}">
+                            <input type="checkbox" id="status" name="status" lay-skin="switch" lay-text="启用|禁用">
+                        </div>
+                        <div th:if="${role.status eq 1}">
+                            <input type="checkbox" id="status" name="status" lay-skin="switch" lay-text="启用|禁用" checked>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea name="remark" th:utext="${role.remark}" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-form-label">操作</div>
+                    <div class="layui-form-block">
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="getMaxDept('#LAY-auth-tree-index')">获取树的深度</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="checkAll('#LAY-auth-tree-index')">全选</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="uncheckAll('#LAY-auth-tree-index')">全不选</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="showAll('#LAY-auth-tree-index')">全部展开</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="closeAll('#LAY-auth-tree-index')">全部隐藏</button>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">设置权限</label>
+                    <div class="layui-input-block">
+                        <div id="LAY-auth-tree-index" ></div>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block layui-hide">
+                        <button class="layui-btn" type="submit" lay-submit lay-filter="LAY-role-edit-submit" id="LAY-role-edit-submit">提交</button>
+                        <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script th:inline="javascript">
+    layui.config({
+        base: '../../'
+    }).extend({
+        index: 'lib/index', //主入口模块
+        authtree: '../layui/authtree'
+    }).use(['jquery', 'authtree', 'form', 'layer'], function(){
+        var $ = layui.jquery;
+        var authtree = layui.authtree;
+        var form = layui.form;
+        var layer = layui.layer;
+        // 初始化
+        $.ajax({
+            url: '/api/menu/'+[[${role.id}]],
+            dataType: 'json',
+            success: function(data){
+                var tree =  authtree.listConvert(data.data,{
+                    primaryKey: 'id'
+                    ,startPid: 0
+                    ,parentKey: 'pid'
+                    ,nameKey: 'permissionName'
+                    ,valueKey: 'id'
+                    ,checkedKey: data.checked
+                });
+                // 渲染时传入渲染目标ID，树形结构数据（具体结构看样例，checked表示默认选中），以及input表单的名字
+                authtree.render('#LAY-auth-tree-index', tree, {
+                    inputname: 'authids[]'
+                    ,layfilter: 'lay-check-auth'
+                    // ,autoclose: false
+                    // ,autochecked: false
+                    // ,openchecked: true
+                    // ,openall: true
+                    ,autowidth: true
+                });
+
+                // PS:使用 form.on() 会引起了事件冒泡延迟的BUG，需要 setTimeout()，并且无法监听全选/全不选
+                // PS:如果开启双击展开配置，form.on()会记录两次点击事件，authtree.on()不会
+                /*form.on('checkbox(lay-check-auth)', function(data){
+                    // 注意这里：需要等待事件冒泡完成，不然获取叶子节点不准确。
+                    setTimeout(function(){
+                        console.log('监听 form 触发事件数据', data);
+                        // 获取选中的叶子节点
+                        var leaf = authtree.getLeaf('#LAY-auth-tree-index');
+                        console.log('leaf', leaf);
+                        // 获取最新选中
+                        var lastChecked = authtree.getLastChecked('#LAY-auth-tree-index');
+                        console.log('lastChecked', lastChecked);
+                        // 获取最新取消
+                        var lastNotChecked = authtree.getLastNotChecked('#LAY-auth-tree-index');
+                        console.log('lastNotChecked', lastNotChecked);
+                    }, 100);
+                });*/
+                // 使用 authtree.on() 不会有冒泡延迟
+                authtree.on('change(lay-check-auth)', function(data) {
+                    console.log('监听 authtree 触发事件数据', data);
+                    // 获取所有节点
+                    var all = authtree.getAll('#LAY-auth-tree-index');
+                    console.log('all', all);
+                    // 获取所有已选中节点
+                    var checked = authtree.getChecked('#LAY-auth-tree-index');
+                    console.log('checked', checked);
+                    // 获取所有未选中节点
+                    var notchecked = authtree.getNotChecked('#LAY-auth-tree-index');
+                    console.log('notchecked', notchecked);
+                    // 获取选中的叶子节点
+                    var leaf = authtree.getLeaf('#LAY-auth-tree-index');
+                    console.log('leaf', leaf);
+                    // 获取最新选中
+                    var lastChecked = authtree.getLastChecked('#LAY-auth-tree-index');
+                    console.log('lastChecked', lastChecked);
+                    // 获取最新取消
+                    var lastNotChecked = authtree.getLastNotChecked('#LAY-auth-tree-index');
+                    console.log('lastNotChecked', lastNotChecked);
+                });
+                authtree.on('deptChange(lay-check-auth)', function(data) {
+                    console.log('监听到显示层数改变',data);
+                });
+            }
+        });
+        /* form.on('submit(LAY-user-role-submit)', function(obj){
+
+         });*/
+    });
+</script>
+<script type="text/javascript">
+    // 获取最大深度样例
+    function getMaxDept(dst){
+        layui.use(['jquery', 'layer', 'authtree'], function(){
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            layer.alert('树'+dst+'的最大深度为：'+authtree.getMaxDept(dst));
+        });
+    }
+    // 全选样例
+    function checkAll(dst){
+        layui.use(['jquery', 'layer', 'authtree'], function(){
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            authtree.checkAll(dst);
+        });
+    }
+    // 全不选样例
+    function uncheckAll(dst){
+        layui.use(['jquery', 'layer', 'authtree'], function(){
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            authtree.uncheckAll(dst);
+        });
+    }
+    // 显示全部
+    function showAll(dst){
+        layui.use(['jquery', 'layer', 'authtree'], function(){
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            authtree.showAll(dst);
+        });
+    }
+    // 隐藏全部
+    function closeAll(dst){
+        layui.use(['jquery', 'layer', 'authtree'], function(){
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            authtree.closeAll(dst);
+        });
+    }
+
+    // 显示到某层
+    function showDept(dst) {
+        layui.use(['layer', 'authtree', 'jquery'], function(){
+            var jquery = layui.jquery;
+            var layer = layui.layer;
+            var authtree = layui.authtree;
+
+            layer.prompt({title: '显示到某层'}, function(value, index, elem) {
+                authtree.showDept(dst, value);
+                layer.close(index);
+            });
+        });
+    }
+</script>
+</body>
+</html>

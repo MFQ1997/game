@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>板块列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+    <link rel="stylesheet" th:href="@{/style/admin.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/mgame.css}" />
+    <link rel="stylesheet" th:href="@{/style/template.css}" />
+
+    <style>
+        .layui-card-header {
+            position: relative;
+            height: 42px;
+            line-height: 42px;
+            padding: 0 15px;
+            border-bottom: 1px solid #f6f6f6;
+            color: #333;
+            border-radius: 2px 2px 0 0;
+            font-size: 16px;
+            background: #f2f2f2;
+        }
+
+        /*body {
+            background-color: #000000;
+        }*/
+        UL {
+            BORDER: 0px;
+            PADDING: 0px;
+            FONT-STYLE: inherit;
+            OUTLINE-STYLE: none;
+            OUTLINE-COLOR: invert;
+            OUTLINE-WIDTH: 0px;
+            FONT-FAMILY: inherit;
+            FONT-SIZE: 100%;
+            VERTICAL-ALIGN: baseline;
+            FONT-WEIGHT: inherit;
+            LIST-STYLE-TYPE: none;
+            LIST-STYLE-IMAGE: none
+        }
+        .alphabet_list {
+            /*MARGIN: 20px 0px 0px 20px;*/
+            WIDTH: 100%;
+            BACKGROUND: #f2f2f2;
+            FLOAT: left;
+            /* -pie-background: linear-gradient(#292929, #1a1a1a);
+             -webkit-box-shadow: #111 0px 2px 3px;
+             -moz-box-shadow: #111 0px 2px 3px;
+             box-shadow: #111 0px 2px 3px*/
+        }
+        .alphabet_list LI {
+            FLOAT: left;
+            HEIGHT: 32px;
+            OVERFLOW: hidden;
+            BORDER-RIGHT: #111 1px solid;
+        }
+        .alphabet_list LI A {
+            POSITION: relative;
+            TEXT-ALIGN: center;
+            PADDING-BOTTOM: 0px;
+            TEXT-TRANSFORM: uppercase;
+            PADDING-LEFT: 0px;
+            WIDTH: 35px;
+            PADDING-RIGHT: 0px;
+            DISPLAY: block;
+            FLOAT: left;
+            HEIGHT: 28px;
+            COLOR: #737373;
+            TEXT-DECORATION: none;
+            PADDING-TOP: 4px;
+            font-size: 17px;
+        }
+        .alphabet_list LI A SPAN {
+            POSITION: absolute;
+            TEXT-ALIGN: center;
+            PADDING-BOTTOM: 0px;
+            PADDING-LEFT: 0px;
+            WIDTH: 100%;
+            PADDING-RIGHT: 0px;
+            DISPLAY: block;
+            FONT: 10px Tahoma, Geneva, sans-serif;
+            HEIGHT: 22px;
+            COLOR: #fff;
+            TOP: -9000px;
+            PADDING-TOP: 10px;
+            LEFT: -9000px;
+            -pie-background: linear-gradient(#00a7ff, #006bff);
+            -webkit-box-shadow: inset #1d1d1d 0px 1px 2px;
+            -moz-box-shadow: inset #1d1d1d 0px 1px 2px;
+            box-shadow: inset #1d1d1d 0px 1px 2px;
+            background-color: #00a7ff;
+        }
+        .alphabet_list LI A:hover {
+            COLOR: #fff;
+            background-color: #000;
+        }
+        .alphabet_list LI A:hover SPAN {
+            TOP: 0px;
+            LEFT: 0px
+        }
+        .alphabet_list LI.active A {
+            COLOR: #fff;
+            -pie-background: linear-gradient(#eb008c, #ae066a);
+            background-color: #eb008c;
+        }
+    </style>
+</head>
+<body>
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/forum/header :: header" ></div>
+
+
+<div class="layui-container">
+
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span class="layui-breadcrumb">
+                <a><cite>当前位置：</cite></a>
+                <a href="/">首页</a>
+                <a href="/bbs">论坛首页</a>
+                <a><cite>论坛板块</cite></a>
+            </span>
+        </div>
+    </div>
+
+
+    <div class="layui-row">
+        <div class="layui-row">
+            <ul class="alphabet_list">
+                <li><a href="/bbs/mlist/find/A">A<span>A</span></a></li>
+                <li><a href="/bbs/mlist/find/B">B<span>B</span></a></li>
+                <li><a href="/bbs/mlist/find/C">C<span>C</span></a></li>
+                <li><a href="/bbs/mlist/find/D">D<span>D</span></a></li>
+                <li><a href="/bbs/mlist/find/E">E<span>E</span></a></li>
+                <li><a href="/bbs/mlist/find/F">F<span>F</span></a></li>
+                <li><a href="/bbs/mlist/find/G">G<span>G</span></a></li>
+                <li><a href="/bbs/mlist/find/H">H<span>H</span></a></li>
+                <li><a href="/bbs/mlist/find/I">I<span>I</span></a></li>
+                <li><a href="/bbs/mlist/find/J">J<span>J</span></a></li>
+                <li><a href="/bbs/mlist/find/K">K<span>K</span></a></li>
+                <li><a href="/bbs/mlist/find/L">L<span>L</span></a></li>
+                <li><a href="/bbs/mlist/find/M">M<span>M</span></a></li>
+                <li><a href="/bbs/mlist/find/N">N<span>N</span></a></li>
+                <li><a href="/bbs/mlist/find/O">O<span>O</span></a></li>
+                <li><a href="/bbs/mlist/find/P">P<span>P</span></a></li>
+                <li><a href="/bbs/mlist/find/Q">Q<span>Q</span></a></li>
+                <li><a href="/bbs/mlist/find/R">R<span>R</span></a></li>
+                <li><a href="/bbs/mlist/find/S">S<span>S</span></a></li>
+                <li><a href="/bbs/mlist/find/T">T<span>T</span></a></li>
+                <li><a href="/bbs/mlist/find/U">U<span>U</span></a></li>
+                <li><a href="/bbs/mlist/find/V">V<span>V</span></a></li>
+                <li><a href="/bbs/mlist/find/W">W<span>W</span></a></li>
+                <li><a href="/bbs/mlist/find/X">X<span>X</span></a></li>
+                <li><a href="/bbs/mlist/find/Y">Y<span>Y</span></a></li>
+                <li><a href="/bbs/mlist/find/Z">Z<span>Z</span></a></li>
+            </ul>
+        </div>
+        <div class="layui-card">
+            <div class="layui-card-header">
+                论坛板块
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-row layui-col-space10">
+                    <div th:if="${size} eq 0">
+                        <div style="text-align: center;min-height: 300px">
+                            <div style="padding-top: 100px">
+                                <i class="layui-icon layui-icon-face-cry" style="font-size: 30px;color: red;"></i>
+                                &nbsp;&nbsp;
+                                <span style="font-size: 30px;color: red;font-weight: bold;">此次搜索无结果</span>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="layui-col-md1 layui-col-sm2 layui-col-xs3" th:each="module:${forumModuleList}">
+                        <div class="cmdlist-container">
+                            <a href="javascript:;"><img th:src="${module.photo}"></a>
+                            <a href="javascript:;">
+                                <div class="cmdlist-text">
+                                    <i class="miniinfo" th:text="${module.name}"></i>
+                                    <div class="mes">
+                                        <div class="layui-row">
+                                            贴数:<span>123万</span>
+                                        </div>
+                                        <div id="test1"></div>
+                                        <div class="layui-row">
+                                            <a th:href="@{'/bbs/one/'+${module.id}}" class="layui-btn  layui-btn-xs minihrefin layui-btn-fluid">进入</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--尾部-->
+<div th:include="/home/common/footer :: footer" ></div>
+
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+<script>
+    layui.config({
+        base: '../../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index'//主入口模块
+
+    }).use(['index', 'form','mgameAdmin','layer','element','util','rate'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,element = layui.element
+            ,layer = layui.layer;
+        var util = layui.util;
+        var rate = layui.rate;
+
+        //渲染
+        var ins1 = rate.render({
+            elem: '#test1'  //绑定元素
+        });
+
+        element.render('nav', 'component-nav');
+        element.render('nav', 'component-nav-active');
+
+        element.on('nav(component-nav-active)', function(elem){
+            layer.msg(elem.text());
+        });
+
+        //固定块
+        util.fixbar({});
+
+    });
+</script>
+</body>
+</html>

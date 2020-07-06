@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mai.game.mapper.RoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="mai.game.entity.po.Role">
+        <id column="r_id" property="id" />
+        <result column="r_name" property="roleName" />
+        <result column="r_status" property="status" />
+        <result column="r_remark" property="remark" />
+    </resultMap>
+    
+    <sql id="all_column">
+        id r_id,role_name r_name,status r_status,remark r_remark
+    </sql>
+
+    <select id="getById" parameterType="Integer" resultMap="BaseResultMap">
+        select r.id r_id,r.role_name r_name,r.status r_status,r.remark r_remark
+		from t_role r
+		where r.id = #{id}
+    </select>
+    <select id="findAllRole" resultMap="BaseResultMap">
+        select <include refid="all_column"></include> from t_role
+    </select>
+
+    <select id="findUserByLikeName" resultMap="BaseResultMap">
+        select <include refid="all_column"></include> from t_role WHERE role_name like concat('%',#{roleName},'%')
+    </select>
+
+</mapper>

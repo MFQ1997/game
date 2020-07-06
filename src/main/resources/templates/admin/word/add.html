@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+
+</head>
+<body>
+<div class="layui-container">
+    <div class="layui-card" style="padding-top: 15px">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-btn-container tag" lay-filter="tags" lay-allowclose="true" lay-newTag="true"></div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block layui-hide">
+                    <button class="layui-btn" lay-submit lay-filter="LAY-word-front-submit" id="LAY-word-front-submit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/layui/layui.js}"></script>
+<script>
+    function getTagList() {
+        var tagList = this.tagList;
+        return tagList;
+    }
+    var tagList = new Array();
+    /*使用模块加载的方式 加载文件*/
+    layui.config({
+        base: '../../layui/'
+    }).extend({
+        tag: "../modules/tag"
+    }).use(['layer','form','upload','tag'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var tag = layui.tag; //Tag的切换功能，切换事件监听等，需要依赖tag模块
+
+
+        tag.render("tags", {
+            skin: 'layui-btn layui-btn-primary layui-btn-sm layui-btn-radius',//标签样式
+            tagText: '<i class="layui-icon layui-icon-add-1"></i>添加标签', //标签添加按钮提示文本
+        });
+        //触发事件
+        var active = {
+            tagAdd: function () {
+                //新增一个Tag项
+                tag.add('tags', {
+                    text: '新选项' + (Math.random() * 1000 | 0) //用于演示
+                    , id: new Date().getTime() //实际使用一般是规定好的id，这里以时间戳模拟下
+                })
+            }
+            , tagDelete: function (othis) {
+                //删除指定Tag项
+                tag.delete('tags', '44'); //删除：“商品管理”
+                othis.addClass('layui-btn-disabled');
+            }
+        };
+
+        $('.site-demo-active').on('click', function () {
+            var othis = $(this), type = othis.data('type');
+            active[type] ? active[type].call(this, othis) : '';
+        });
+
+        tag.on('click(tags)', function (data) {
+            console.log('点击');
+            console.log(this); //当前Tag标签所在的原始DOM元素
+            console.log(data.index); //得到当前Tag的所在下标
+            console.log(data.elem); //得到当前的Tag大容器
+        });
+
+        tag.on('add(tags)', function (data) {
+            console.log('新增');
+            console.log(this); //当前Tag标签所在的原始DOM元素
+            console.log(data.index); //得到当前Tag的所在下标
+            console.log(data.elem); //得到当前的Tag大容器
+            console.log(data.othis); //得到新增的DOM对象
+            console.log("元素的值是："+data.text);
+            tagList.push(data.text);
+            //return false; //返回false 取消新增操作； 同from表达提交事件。
+        });
+
+        tag.on('delete(tags)', function (data) {
+            console.log('删除');
+            console.log(this); //当前Tag标签所在的原始DOM元素
+            console.log(data.index); //得到当前Tag的所在下标
+            console.log(data.elem); //得到当前的Tag大容器
+            tagList.splice(data.index, 1); //结果arr=['a','c','d']（下标1开始，删除1个）
+            //return false; //返回false 取消删除操作； 同from表达提交事件。
+        });
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>投票...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" />
+    <link rel="stylesheet" th:href="@{/css/home/global.css}" />
+
+    <!-- 百度编辑器配置文件 -->
+    <script type="text/javascript" th:src="@{/ueditor/ueditor.config.js}"></script>
+    <!-- 百度编辑器编辑器源码文件 -->
+    <script type="text/javascript" th:src="@{/ueditor/editor_api.js}"></script>
+</head>
+<body>
+
+
+<div th:include="/home/common/header :: header" ></div>
+<div th:include="/home/common/column :: column" ></div>
+
+<div class="layui-container">
+    <div class="layui-col-md12">
+        <div class="layui-card">
+            <div class="layui-card-header">
+                <span class="layui-breadcrumb">123
+                  <a href="/">首页</a>
+                  <a href="">论坛</a>
+                  <a><cite>发起投票</cite></a>
+                </span>
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-btn-container">
+                    <a href="/topic/add"><button class="layui-btn layui-btn-primary">发表帖子</button></a>
+                    <a href="/topic/vote"><button class="layui-btn layui-btn-primary ">发起投票</button></a>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-card">
+            <div class="layui-card-header">
+                投票选项：最多可以选择55个选项
+            </div>
+            <div class="layui-card-body">
+                <div class="layui-row">
+                    <div class="layui-col-md6">
+                        <div class="layui-row">
+                            <!--<input type="text" name="title4" placeholder="请输入选项" autocomplete="off" class="layui-input">
+                            <input type="text" name="title5" placeholder="请输入选项" autocomplete="off" class="layui-input">
+                            <input type="text" name="title6" placeholder="请输入选项" autocomplete="off" class="layui-input">-->
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <input type="text" name="" placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux"><i class="layui-icon layui-icon-subtraction"></i></div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <input type="text" name=""  placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux"><i class="layui-icon layui-icon-subtraction"></i></div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-inline">
+                                    <input type="text" name=""  placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux"><i class="layui-icon layui-icon-subtraction"></i></div>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                            <i class="layui-icon layui-icon-addition"></i>
+                            <i class="layui-icon layui-icon-subtraction"></i>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <form class="layui-form" action="">
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">最多可选择</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">项</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">记票天数</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="" required lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">天</div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">结果可见</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" name="switch" lay-skin="switch">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">公开参与人</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" name="switch" lay-skin="switch">
+                                </div>
+                            </div>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="layui-row">
+                    <div class="layui-inline">
+                        <script id="container" name="content" type="text/plain"></script>
+                        <!-- 实例化编辑器 -->
+                        <script type="text/javascript">var ue = UE.getEditor('container');</script>
+                    </div>
+                </div>
+
+                <div class="layui-row">
+
+                    <div class="layui-input-block">
+                        <div class="layui-layout-left">
+                            --
+                        </div>
+                        <div class="layui-layout-right">
+                            <button class="layui-btn" lay-submit lay-filter="component-form-element">发起投票</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript" th:src="@{/layui/layui.js}" ></script>
+
+<script>
+    layui.config({
+        base: '../../' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index','form'], function(){
+        var $ = layui.$
+            ,admin = layui.admin
+            ,element = layui.element
+            ,form = layui.form;;
+
+        element.render('nav', 'component-nav');
+        element.render('nav', 'component-nav-active');
+
+        element.on('nav(component-nav-active)', function(elem){
+            layer.msg(elem.text());
+        });
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            layer.msg(JSON.stringify(data.field));
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>
